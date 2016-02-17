@@ -1,7 +1,7 @@
-if exists("g:loaded_vimux") || &cp
+if exists("g:loaded_vimux_plex") || &cp
   finish
 endif
-let g:loaded_vimux = 1
+let g:loaded_vimux_plex = 1
 
 "TODO: check address existence
 "Possible TODO: localize to script
