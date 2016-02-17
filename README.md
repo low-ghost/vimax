@@ -35,3 +35,4 @@ to enable. All examples will assume this configuration
 - [ ] pull up quicklist with history (limited to g:VimuxPlexHistoryLimit) and allow selecting to send
 - [ ] list all addresses and allow selecting to set the last used address (next default)
 - [ ] docs
+- [ ] run in dir is actually useful. means pane/window global pref
