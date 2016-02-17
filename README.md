@@ -1,6 +1,10 @@
 #VimuxPlex
 
-God-like control over tmux and vim
+Enhanced control over tmux and vim
+
+##Vimux Based Functionality
+
+This plugin is largely based on [Vimux](https://github.com//benmills/vimux) and is enhanced to allow a finer grain of control over sending commands and text to multiple tmux panes and windows. Primarily, all Vimux functions now accept a count or argument to specify the target window and pane—a combination refered to as an address—with which we wish to interact.
 
 ##Tmux Specific Config
 
