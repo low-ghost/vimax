@@ -79,6 +79,9 @@ function! VimuxPlexRunLastCommand(...)
     let command = get(g:VimuxPlexLastCommandDict, address, 'Up')
     call VimuxPlexRunCommand(command, address)
   endif
+  if exists('g:repeat_tick')
+    call repeat#set("\<Plug>VimuxPlexRunLastCommand", v:count)
+  endif
 endfunction
 
 "ask for a command to run and execute it in pane from count, arg, last address, or prompt
@@ -93,6 +96,9 @@ function! VimuxPlexPromptCommand(...)
     echo "No command specified"
   else
     call VimuxPlexRunCommand(command)
+  endif
+  if exists('g:repeat_tick')
+    call repeat#set("\<Plug>VimuxPlexRunLastCommand", v:count)
   endif
 endfunction
 
@@ -143,6 +149,9 @@ function! VimuxPlexScrollUpInspect(...)
   call VimuxPlexInspectAddress(address)
   call s:VimuxPlexReturnToLastVimAddress()
   call VimuxPlexSendKeys("C-u", address)
+  if exists('g:repeat_tick')
+    call repeat#set("\<Plug>VimuxPlexScrollUpInspect", v:count)
+  endif
 endfunction
 
 "travel to address, insert copy mode, page down, then return to vim
@@ -151,6 +160,9 @@ function! VimuxPlexScrollDownInspect(...)
   call VimuxPlexInspectAddress(address)
   call s:VimuxPlexReturnToLastVimAddress()
   call VimuxPlexSendKeys("C-d", address)
+  if exists('g:repeat_tick')
+    call repeat#set("\<Plug>VimuxPlexScrollDownInspect", v:count)
+  endif
 endfunction
 
 "send an interrupt sequence (control-c) to address
@@ -162,6 +174,9 @@ function! VimuxPlexInterruptAddress(...)
   endif
   let g:VimuxPlexLastAddress = address
   call VimuxPlexSendKeys("^C", address)
+  if exists('g:repeat_tick')
+    call repeat#set("\<Plug>VimuxPlexInterruptAddress", v:count)
+  endif
 endfunction
 
 "clear an address's tmux history and clear the terminal
