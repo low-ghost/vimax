@@ -246,26 +246,38 @@ function! vimax#InspectAddress(...)
   call system('tmux copy-mode')
 endfunction
 
-function! vimax#List()
+function! s:TlibList(lines)
   let state = {
     \ 'type': 's',
     \ 'query': 'Vimax List',
     \ 'pick_last_item': 0,
     \ }
-  let lines = system('tmux lsp -a -F "#S:#{=10:window_name}-#I:#P #{pane_current_command} #{?pane_active,(active),}"')
-  let state.base = split(lines, '\n')
-  if g:VimaxFuzzyBuffer
-    let picked = tlib#input#ListD(state)
-    if !empty(picked)
-      let [ _, session, window, pane; rest ] = matchlist(picked, '\(\w\+\):.*-\(\w\+\).\(\w\+\)')
-      let g:VimaxLastAddress = session.':'.window.'.'.pane
-      return g:VimaxLastAddress
-    endif
+  let state.base = split(a:lines, '\n')
+  let picked = tlib#input#ListD(state)
+  if !empty(picked)
+    let [ _, session, window, pane; rest ] = matchlist(picked, '\(\w\+\):.*-\(\w\+\).\(\w\+\)')
+    let g:VimaxLastAddress = session.':'.window.'.'.pane
+    return g:VimaxLastAddress
+  else
+    return 'none'
   endif
-  return 'none'
 endfunction
 
-function! ChangeTarget(state, items)
+function! vimax#List()
+
+  let lines = system('tmux lsp -a -F "#S:#{=10:window_name}-#I:#P #{pane_current_command} #{?pane_active,(active),}"')
+
+  if g:VimaxFuzzyBuffer == 'none'
+    echo lines
+  elseif g:VimaxFuzzyBuffer == 'tlib'
+    return s:TlibList(lines)
+  endif
+
+  return 'none'
+
+endfunction
+
+function! TlibChangeTarget(state, items)
   for i in a:items
     let new_address = vimax#List()
     let s:state.address = new_address
@@ -275,26 +287,37 @@ function! ChangeTarget(state, items)
   return a:state
 endfunction
 
-function! vimax#History(...)
-  if !g:VimaxFuzzyBuffer
-    echo 'Tlib is not loaded'
-    return 0
-  endif
+function! s:TlibHistory(address, lines)
 
-  let address = s:GetAddress(exists('a:1') ? a:1 : 'none')
   let s:state = {
     \ 'type': 's',
     \ 'query': 'Vimax History | <C-t> - change target | ',
     \ 'key_handlers': [
-        \ {'key': 1, 'agent': 'ChangeTarget', 'key_name': '<C-a>'},
+        \ {'key': 1, 'agent': 'TlibChangeTarget', 'key_name': '<C-a>'},
     \ ],
     \ 'pick_last_item': 0,
-    \ 'address': address
+    \ 'address': a:address
     \ }
+  let s:state.base = split(a:lines, '\n')
+  return tlib#input#ListD(s:state)
 
-  let lines = system('tail -'.g:VimaxLimitHistory.' /home/lowghost/.bash_history')
-  let s:state.base = split(lines, '\n')
-  let command = tlib#input#ListD(s:state)
+endfunction
+
+function! vimax#History(...)
+
+  let address = s:GetAddress(exists('a:1') ? a:1 : 'none')
+  let lines = system('tail -'.g:VimaxLimitHistory.' '.g:VimaxHistoryFile)
+
+  if g:VimaxFuzzyBuffer == 'none'
+    let g:VimaxLastAddress = address
+    echo "Neither Tlib nor FZF is not loaded.\n
+      \You'll have to call :vimax#RunCommand <command> yourself\n\n"
+    echo lines
+    return 0
+  elseif g:VimaxFuzzyBuffer == 'tlib'
+    let command = s:TlibHistory(address, lines)
+  endif
+
   if !empty(command)
     call vimax#RunCommand(command, s:state.address)
   else

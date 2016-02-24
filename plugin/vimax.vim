@@ -1,17 +1,26 @@
-if exists('g:vimux_plex_loaded') || &cp
+if exists('g:vimax_loaded') || &cp
   finish
 endif
+
+"fuzzy buffer preference. fzf and tlib are (will be) supported. if none,
+"simple vim 'echo's are used
 if !exists('g:loaded_tlib') || g:loaded_tlib < 11
   runtime plugin/02tlib.vim
-  let g:VimaxFuzzyBuffer = (!exists('g:loaded_tlib') || g:loaded_tlib < 11) ? 0 : 1
+  let g:VimaxFuzzyBuffer = (!exists('g:loaded_tlib') || g:loaded_tlib < 11) ? 'none' : 'tlib'
 else
-  let g:VimaxFuzzyBuffer = 1
+  let g:VimaxFuzzyBuffer = 'tlib'
 endif
-let g:vimux_plex_loaded = 1
+
+let g:vimax_loaded = 1
 
 "limit the size of shell history loaded into list
 if !exists('g:VimaxLimitHistory')
   let g:VimaxLimitHistory = 25
+endif
+
+"location of shell history file
+if !exists('g:VimaxHistoryFile')
+  let g:VimaxHistoryFile = $HOME.'/.bash_history'
 endif
 
 "string presented when prompting for a command

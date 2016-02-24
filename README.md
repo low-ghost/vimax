@@ -1,6 +1,6 @@
 #Vimax
 
-An ax for maximum tmux and vim control...or something
+An ax for maximum tmux and vim control... or something
 
 ##Vimux Based Functionality
 
@@ -14,6 +14,9 @@ Here's a sample mapping to <prefix><C-o>
 ```bash
 bind C-o run "tmux showenv | grep VimaxLastVimAddress | sed -ne 's/VimaxLastVimAddress=\\([[:digit:]]\\).\\([[:digit:]]\\)/tmux select-window -t \\1; tmux select-pane -t \\2/p' | xargs -I % bash -c % bash"
 ```
+
+There is probably a better way of doing all that (probably with grep -o and tmux execution of the final command).
+Let me know if you discover something.
 
 You may also want:
 
@@ -31,9 +34,10 @@ Put these in your ~/.tmux.conf file and type
 to enable. All examples will assume this configuration
 
 #TODO
-- [ ] maybe: persistant last command dicts across tmux session
+- [ ] maybe: persistent last command dicts across tmux session
 - [x] pull up quicklist with history (limited to g:VimaxHistoryLimit) and allow selecting to send
 - [x] list all addresses and allow selecting to set the last used address (next default)
 - [ ] docs
-- [ ] run in dir is actually useful. recommend Dispatch to perform these kinds of actions
+- [ ] run in dir is actually useful. Recommend Dispatch to perform these kinds of actions
       but also give command which replicates pane creation in dir and sets to LastAddress
+- [ ] finish and integrate sending keys by region/range
