@@ -1,6 +1,6 @@
-#VimuxPlex
+#Vimax
 
-Enhanced control over tmux and vim
+An ax for maximum tmux and vim control...or something
 
 ##Vimux Based Functionality
 
@@ -8,11 +8,11 @@ This plugin is largely based on [Vimux](https://github.com//benmills/vimux) and 
 
 ##Tmux Specific Config
 
-VimuxPlex adds functionality to return to the last vim address via a key combination.
+Vimax adds functionality to return to the last vim address via a key combination.
 Here's a sample mapping to <prefix><C-o>
 
 ```bash
-bind C-o run "tmux showenv | grep VimuxPlexLastVimAddress | sed -ne 's/VimuxPlexLastVimAddress=\\([[:digit:]]\\).\\([[:digit:]]\\)/tmux select-window -t \\1; tmux select-pane -t \\2/p' | xargs -I % bash -c % bash"
+bind C-o run "tmux showenv | grep VimaxLastVimAddress | sed -ne 's/VimaxLastVimAddress=\\([[:digit:]]\\).\\([[:digit:]]\\)/tmux select-window -t \\1; tmux select-pane -t \\2/p' | xargs -I % bash -c % bash"
 ```
 
 You may also want:
@@ -31,8 +31,9 @@ Put these in your ~/.tmux.conf file and type
 to enable. All examples will assume this configuration
 
 #TODO
-- [ ] persistant last command dicts across tmux session
-- [ ] pull up quicklist with history (limited to g:VimuxPlexHistoryLimit) and allow selecting to send
-- [ ] list all addresses and allow selecting to set the last used address (next default)
+- [ ] maybe: persistant last command dicts across tmux session
+- [x] pull up quicklist with history (limited to g:VimaxHistoryLimit) and allow selecting to send
+- [x] list all addresses and allow selecting to set the last used address (next default)
 - [ ] docs
-- [x] ~~run in dir is actually useful. means pane/window global pref~~ recommend Dispatch to perform these kinds of actions
+- [ ] run in dir is actually useful. recommend Dispatch to perform these kinds of actions
+      but also give command which replicates pane creation in dir and sets to LastAddress
