@@ -1,13 +1,23 @@
-if exists('g:loaded_vimux_plex') || &cp
+if exists('g:vimux_plex_loaded') || &cp
   finish
 endif
-let g:loaded_vimux_plex = 1
+if !exists('g:loaded_tlib') || g:loaded_tlib < 11
+  runtime plugin/02tlib.vim
+  let s:has_tlib = (!exists('g:loaded_tlib') || g:loaded_tlib < 11) ? 0 : 1
+else
+  let s:has_tlib = 1
+endif
+let g:vimux_plex_loaded = 1
+
 
 "TODO: check address existence
-"Possible TODO: localize to script
-function! VimuxPlexGetAddress(specified_address)
+"uses 'none' string b/c of high possibility of 0 address
+function! s:VimuxPlexGetAddress(specified_address)
 
-  if a:specified_address
+  let prompt_string = "Enter tmux address as [[session:]window.]pane, such as 9 or vim.9 or 0:vim.9\n"
+  if a:specified_address == 'prompt'
+    return input(prompt_string)
+  elseif a:specified_address != 'none'
     "directly pass address as the second argument
     return
       \ type(a:specified_address) == 1
@@ -16,13 +26,20 @@ function! VimuxPlexGetAddress(specified_address)
   elseif exists('v:count') && v:count != 0
     "join a two or three digit count with a dot so that 10 refers to 1.0 or window 1,
     "pane 0. could also give 3 numbers to indicate session, window, pane
-    return join(split(string(v:count), '\zs'), '.')
+    let split_count = split(string(v:count), '\zs')
+    let length_split = len(split_count)
+    if length_split < 3
+      return join(split_count, '.')
+    else
+      let [ session; rest ] = split_count
+      return session.':'.join(rest, '.')
+    endif
   elseif exists('g:VimuxPlexLastAddress')
     "use last address as the default
     return g:VimuxPlexLastAddress
   else
-    "if no last address, prompt for input
-    return input('Enter address number: ')
+    "if no specified, count or last address, prompt for input
+    return input(prompt_string)
   endif
 
 endfunction
@@ -33,7 +50,7 @@ endfunction
 "Persists last command and address in variables and in a dict
 function! VimuxPlexRunCommand(command, ...)
 
-  let address = VimuxPlexGetAddress(exists('a:1') ? a:1 : 0)
+  let address = s:VimuxPlexGetAddress(exists('a:1') ? a:1 : 'none')
 
   if empty(address)
     echo 'No address specified'
@@ -70,7 +87,7 @@ endfunction
 "run last command from dict based on pane from count, arg, last address,
 "or prompt. If no last command and buffer exists send, 'Up' and 'Enter'
 function! VimuxPlexRunLastCommand(...)
-  let address = VimuxPlexGetAddress(exists('a:1') ? a:1 : 0)
+  let address = s:VimuxPlexGetAddress(exists('a:1') ? a:1 : 'none')
   if empty(address)
     echo 'No address specified'
     return 0
@@ -79,9 +96,8 @@ function! VimuxPlexRunLastCommand(...)
     let command = get(g:VimuxPlexLastCommandDict, address, 'Up')
     call VimuxPlexRunCommand(command, address)
   endif
-  if exists('g:repeat_tick')
-    call repeat#set('\<Plug>VimuxPlexRunLastCommand', v:count)
-  endif
+
+  call repeat#set('\<Plug>VimuxPlexRunLastCommand', v:count)
 endfunction
 
 "ask for a command to run and execute it in pane from count, arg, last address, or prompt
@@ -97,23 +113,18 @@ function! VimuxPlexPromptCommand(...)
   else
     call VimuxPlexRunCommand(command)
   endif
-  if exists('g:repeat_tick')
-    call repeat#set('\<Plug>VimuxPlexRunLastCommand', v:count)
-  endif
+
+  call repeat#set('\<Plug>VimuxPlexRunLastCommand', v:count)
 endfunction
 
 "kill a specific address
 function! VimuxPlexCloseAddress()
-  let address = VimuxPlexGetAddress(exists('a:1') ? a:1 : 0)
+  let address = s:VimuxPlexGetAddress(exists('a:1') ? a:1 : 'none')
   if empty(address)
     echo 'No address specified'
     return 0
   endif
-  "TODO: handle session
-  let [ split_address, len_address ] = s:AddressSplitLength(address)
-  if (len_address < 3)
-    call system('tmux kill-pane -t '.address)
-  endif
+  call system('tmux kill-pane -t '.address)
 endfunction
 
 "turns pane into a window and a window into a pane
@@ -130,7 +141,7 @@ endfunction
 
 "travel to an address and zoom in
 function! VimuxPlexZoomAddress(...)
-  let address = VimuxPlexGetAddress(exists('a:1') ? a:1 : 0)
+  let address = s:VimuxPlexGetAddress(exists('a:1') ? a:1 : 'none')
   if empty(address)
     echo 'No address specified'
     return 0
@@ -143,62 +154,64 @@ endfunction
 "the pane to execute but return to original vim. See VimuxPlexScrollUpInspect
 "and ...Down...
 function! s:VimuxPlexReturnToLastVimAddress()
-  "Potential TODO: respect session
-  let split_address = split(g:VimuxPlexLastVimAddress, '\.')
-  call system('tmux select-window -t '.split_address[0].'; tmux select-pane -t '.split_address[1])
+  let [ split_address, len_address ] =
+    \ s:AddressSplitLength(g:VimuxPlexLastVimAddress)
+  if len_address < 3
+    let [ window_address, pane_address ] = split_address
+  else
+    let [ session, window, pane_address ] = split_address
+    let window_address = session.':'.window
+  endif
+  call system('tmux select-window -t '
+    \ .window_address
+    \ .'; tmux select-pane -t '
+    \ .pane_address)
 endfunction
 
 "travel to address, insert copy mode, page up, then return to vim
 function! VimuxPlexScrollUpInspect(...)
-  let address = VimuxPlexGetAddress(exists('a:1') ? a:1 : 0)
+  let address = s:VimuxPlexGetAddress(exists('a:1') ? a:1 : 'none')
   call VimuxPlexInspectAddress(address)
   call s:VimuxPlexReturnToLastVimAddress()
   call VimuxPlexSendKeys('C-u', address)
-  if exists('g:repeat_tick')
-    call repeat#set('\<Plug>VimuxPlexScrollUpInspect', v:count)
-  endif
+
+  call repeat#set('\<Plug>VimuxPlexScrollUpInspect', v:count)
 endfunction
 
 "travel to address, insert copy mode, page down, then return to vim
 function! VimuxPlexScrollDownInspect(...)
-  let address = VimuxPlexGetAddress(exists('a:1') ? a:1 : 0)
+  let address = s:VimuxPlexGetAddress(exists('a:1') ? a:1 : 'none')
   call VimuxPlexInspectAddress(address)
   call s:VimuxPlexReturnToLastVimAddress()
   call VimuxPlexSendKeys('C-d', address)
-  if exists('g:repeat_tick')
-    call repeat#set('\<Plug>VimuxPlexScrollDownInspect', v:count)
-  endif
+
+  call repeat#set('\<Plug>VimuxPlexScrollDownInspect', v:count)
 endfunction
 
 "send an interrupt sequence (control-c) to address
 function! VimuxPlexInterruptAddress(...)
-  let address = VimuxPlexGetAddress(exists('a:1') ? a:1 : 0)
+  let address = s:VimuxPlexGetAddress(exists('a:1') ? a:1 : 'none')
   if empty(address)
     echo 'No address specified'
     return 0
   endif
   let g:VimuxPlexLastAddress = address
   call VimuxPlexSendKeys('^C', address)
-  if exists('g:repeat_tick')
-    call repeat#set('\<Plug>VimuxPlexInterruptAddress', v:count)
-  endif
+
+  call repeat#set('\<Plug>VimuxPlexInterruptAddress', v:count)
 endfunction
 
 "clear an address's tmux history and clear the terminal
 function! VimuxPlexClearAddressHistory(...)
-  let address = VimuxPlexGetAddress(exists('a:1') ? a:1 : 0)
+  let address = s:VimuxPlexGetAddress(exists('a:1') ? a:1 : 'none')
   if empty(address)
     echo 'No address specified'
     return 0
   endif
   let g:VimuxPlexLastAddress = address
-  "TODO: handle session
-  let [ split_address, len_address ] = s:AddressSplitLength(address)
-  if (len_address < 3)
-    call system('tmux clear-history -t '.address)
-    call VimuxPlexSendText('clear', address)
-    call VimuxPlexSendKeys('Enter', address)
-  endif
+  call system('tmux clear-history -t '.address)
+  call VimuxPlexSendText('clear', address)
+  call VimuxPlexSendKeys('Enter', address)
 endfunction
 
 "send escaped text by calling VimuxPlexSendKeys. Needs text and pane explicitly
@@ -209,11 +222,7 @@ endfunction
 "send specific keys to a tmux pane. Needs keys and address explicitly
 function! VimuxPlexSendKeys(keys, address)
   let address = type(a:address) == 1 ? a:address : string(a:address)
-  "TODO: handle session
-  let [ split_address, len_address ] = s:AddressSplitLength(address)
-  if (len_address < 3)
-    call system('tmux send-keys -t '.address.' '.a:keys)
-  endif
+  call system('tmux send-keys -t '.address.' '.a:keys)
 endfunction
 
 function! s:AddressSplitLength(address)
@@ -223,7 +232,7 @@ endfunction
 
 "travel to an address and persist it as the last-used
 function! VimuxPlexGoToAddress(...)
-  let address = VimuxPlexGetAddress(exists('a:1') ? a:1 : 0)
+  let address = s:VimuxPlexGetAddress(exists('a:1') ? a:1 : 'none')
   if empty(address)
     echo 'No address specified'
     return 0
@@ -244,11 +253,12 @@ function! VimuxPlexGoToAddress(...)
   elseif len_address == 1
     call system('tmux select-pane -t '.split_address[0])
   endif
+
 endfunction
 
 "enter window and pane in copy mode
 function! VimuxPlexInspectAddress(...)
-  let address = VimuxPlexGetAddress(exists('a:1') ? a:1 : 0)
+  let address = s:VimuxPlexGetAddress(exists('a:1') ? a:1 : 'none')
   if empty(address)
     echo 'No address specified'
     return 0
@@ -265,14 +275,54 @@ function! VimuxPlexList()
     \ }
   let lines = system('tmux lsp -a -F "#S:#{=10:window_name}-#I:#P #{pane_current_command} #{?pane_active,(active),}"')
   let state.base = split(lines, '\n')
-  if exists('g:loaded_tlib')
-    let g:picked = tlib#input#ListD(state)
-    if !empty(g:picked)
-      let [ _, session, window, pane; rest ] = matchlist(g:picked, '\(\w\+\):.*-\(\w\+\).\(\w\+\)')
-      "TODO: handle session
-      "let g:VimuxPlexLastAddress = join([session, window, pane], '.')
-      let g:VimuxPlexLastAddress = join([window, pane], '.')
+  if s:has_tlib
+    let picked = tlib#input#ListD(state)
+    if !empty(picked)
+      let [ _, session, window, pane; rest ] = matchlist(picked, '\(\w\+\):.*-\(\w\+\).\(\w\+\)')
+      let g:VimuxPlexLastAddress = session.':'.window.'.'.pane
+      return g:VimuxPlexLastAddress
     endif
+  endif
+  return 'none'
+endfunction
+
+function! ChangeTarget(state, items)
+  for i in a:items
+    let new_address = VimuxPlexList()
+    let s:state.address = new_address
+  endfor
+  let a:state.state = 'display'
+  silent exe ':redraw!'
+  return a:state
+endfunction
+
+function! VimuxPlexHistory(...)
+  if !s:has_tlib
+    echo 'Tlib is not loaded'
+    return 0
+  endif
+
+  let address = s:VimuxPlexGetAddress(exists('a:1') ? a:1 : 'none')
+  let s:state = {
+    \ 'type': 's',
+    \ 'query': 'VimuxPlex History | <C-t> - change target | ',
+    \ 'key_handlers': [
+        \ {'key': 1, 'agent': 'ChangeTarget', 'key_name': '<C-a>'},
+    \ ],
+    \ 'pick_last_item': 0,
+    \ 'address': address
+    \ }
+  let limit = exists('g:VimuxPlexLimitHistory')
+    \ ? g:VimuxPlexLimitHistory
+    \ : 25
+
+  let lines = system('tail -'.limit.' /home/lowghost/.bash_history')
+  let s:state.base = split(lines, '\n')
+  let command = tlib#input#ListD(s:state)
+  if !empty(command)
+    call VimuxPlexRunCommand(command, s:state.address)
+  else
+    echo 'No command specified'
   endif
 endfunction
 
@@ -289,6 +339,8 @@ nnoremap <unique> <Plug>VimuxPlexGoToAddress :<C-U>call VimuxPlexGoToAddress()<C
 nnoremap <unique> <Plug>VimuxPlexScrollUpInspect :<C-U>call VimuxPlexScrollUpInspect()<CR>
 nnoremap <unique> <Plug>VimuxPlexScrollDownInspect :<C-U>call VimuxPlexScrollDownInspect()<CR>
 nnoremap <unique> <Plug>VimuxPlexCloseAddress :<C-U>call VimuxPlexCloseAddress()<CR>
+nnoremap <unique> <Plug>VimuxPlexHistory :<C-U>call VimuxPlexHistory()<CR>
+nnoremap <unique> <Plug>VimuxPlexList :call VimuxPlexList()<CR>
 
 "commands which accept args
 command -nargs=* VimuxPlexPromptCommand call VimuxPlexPromptCommand(<f-args>)
@@ -301,6 +353,8 @@ command -nargs=* VimuxPlexGoToAddress call VimuxPlexGoToAddress(<f-args>)
 command -nargs=* VimuxPlexScrollUpInspect call VimuxPlexScrollUpInspect(<f-args>)
 command -nargs=* VimuxPlexScrollDownInspect call VimuxPlexScrollDownInspect(<f-args>)
 command -nargs=* VimuxPlexCloseAddress call VimuxPlexCloseAddress(<f-args>)
+command -nargs=* VimuxPlexHistory call VimuxPlexHistory(<f-args>)
+command VimuxPlexList call VimuxPlexList()
 
 "example mappings
 "nmap ,vp <Plug>VimuxPlexPromptCommand
