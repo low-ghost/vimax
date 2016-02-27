@@ -2,13 +2,17 @@ if exists('g:vimax_loaded') || &cp
   finish
 endif
 
+let g:VimaxFuzzyBuffer = 'fzf'
+
 "fuzzy buffer preference. fzf and tlib are (will be) supported. if none,
 "simple vim 'echo's are used
-if !exists('g:loaded_tlib') || g:loaded_tlib < 11
-  runtime plugin/02tlib.vim
-  let g:VimaxFuzzyBuffer = (!exists('g:loaded_tlib') || g:loaded_tlib < 11) ? 'none' : 'tlib'
-else
-  let g:VimaxFuzzyBuffer = 'tlib'
+if !exists('g:VimaxFuzzyBuffer')
+  if !exists('g:loaded_tlib') || g:loaded_tlib < 11
+    runtime plugin/02tlib.vim
+    let g:VimaxFuzzyBuffer = (!exists('g:loaded_tlib') || g:loaded_tlib < 11) ? 'none' : 'tlib'
+  else
+    let g:VimaxFuzzyBuffer = 'tlib'
+  endif
 endif
 
 let g:vimax_loaded = 1

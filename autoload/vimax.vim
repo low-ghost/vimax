@@ -246,37 +246,96 @@ function! vimax#InspectAddress(...)
   call system('tmux copy-mode')
 endfunction
 
-function! s:TlibList(lines)
-  let state = {
-    \ 'type': 's',
-    \ 'query': 'Vimax List',
-    \ 'pick_last_item': 0,
-    \ }
-  let state.base = split(a:lines, '\n')
-  let picked = tlib#input#ListD(state)
-  if !empty(picked)
-    let [ _, session, window, pane; rest ] = matchlist(picked, '\(\w\+\):.*-\(\w\+\).\(\w\+\)')
-    let g:VimaxLastAddress = session.':'.window.'.'.pane
+"FuzzyBuffer funtions
+
+"each is a list with [Tlib format, fzf format, display]
+let g:VimaxFuzzyBufferBindings = {
+ \ 'change_target': ['<C-a>', 'ctrl-a', 'ctrl-a']
+ \ }
+
+"format colors for fzf
+function! s:ansi(str, col, bold)
+  return printf("\x1b[%s%sm%s\x1b[m", a:col, a:bold ? ';1' : '', a:str)
+endfunction
+
+"provide color functions like s:magenta
+for [s:c, s:a] in items({'black': 30, 'red': 31, 'green': 32, 'yellow': 33, 'blue': 34, 'magenta': 35, 'cyan': 36})
+  execute "function! s:".s:c."(str, ...)\n"
+        \ "  return s:ansi(a:str, ".s:a.", get(a:, 1, 0))\n"
+        \ "endfunction"
+endfor
+
+"get an address from the format used in vimax#List
+function! s:GetAddressFromListItem(item)
+  let [ _, session, window, pane; rest ] =
+    \ matchlist(a:item, '\(\w\+\):.*-\(\w\+\).\(\w\+\)')
+  return session.':'.window.'.'.pane
+endfunction
+
+"set VimaxLastAddress if the selection is not empty
+function! s:SetAndReturnLastAddress(picked)
+  if !empty(a:picked)
+    let g:VimaxLastAddress = s:GetAddressFromListItem(a:picked)
     return g:VimaxLastAddress
   else
     return 'none'
   endif
 endfunction
 
+"tlib variation of the list function
+function! s:TlibList(lines)
+  let state = {
+    \ 'type': 's',
+    \ 'query': 'Vimax Address List',
+    \ 'pick_last_item': 0,
+    \ }
+  let state.base = split(a:lines, '\n')
+  let picked = tlib#input#ListD(state)
+  return s:SetAndReturnLastAddress(picked)
+endfunction
+
+"fzf variation of the list function
+function! s:FzfList(lines)
+  let picked = fzf#run({
+    \ 'source': reverse(split(a:lines, '\n')),
+    \ 'options': '--ansi --prompt="Address> "'.
+      \ ' --header "Vimax Address List"'.
+      \ ' --tiebreak=index',
+    \ })
+  if len(picked)
+    return s:SetAndReturnLastAddress(picked[0])
+  else
+    return 'none'
+  endif
+endfunction
+
+"main address listing function.
+"Selects function for fuzzy listing
+"or just echoes the list
 function! vimax#List()
 
-  let lines = system('tmux lsp -a -F "#S:#{=10:window_name}-#I:#P #{pane_current_command} #{?pane_active,(active),}"')
+  let lines = system(
+    \ 'tmux lsp'.
+    \ ' -a -F'.
+    \ ' "#S:#{=10:window_name}-#I:#P'.
+    \ ' #{pane_current_command}'.
+    \ ' #{?pane_active,(active),}"'
+    \ )
 
   if g:VimaxFuzzyBuffer == 'none'
     echo lines
   elseif g:VimaxFuzzyBuffer == 'tlib'
     return s:TlibList(lines)
+  elseif g:VimaxFuzzyBuffer == 'fzf'
+    return s:FzfList(lines)
   endif
 
   return 'none'
 
 endfunction
 
+
+"tlib variation of change target function including nested list
 function! TlibChangeTarget(state, items)
   for i in a:items
     let new_address = vimax#List()
@@ -287,22 +346,80 @@ function! TlibChangeTarget(state, items)
   return a:state
 endfunction
 
+"tlib history function.
+"expects individual functions to handle key bindings
 function! s:TlibHistory(address, lines)
 
   let s:state = {
     \ 'type': 's',
-    \ 'query': 'Vimax History | <C-t> - change target | ',
+    \ 'query': 'Vimax History :: '.
+    \ g:VimaxFuzzyBufferBindings.change_target[2].' - change target',
     \ 'key_handlers': [
-        \ {'key': 1, 'agent': 'TlibChangeTarget', 'key_name': '<C-a>'},
+      \ {
+      \ 'key': 1,
+      \ 'agent': 'TlibChangeTarget',
+      \ 'key_name': g:VimaxFuzzyBufferBindings.change_target[0]
+      \ },
     \ ],
     \ 'pick_last_item': 0,
     \ 'address': a:address
     \ }
   let s:state.base = split(a:lines, '\n')
-  return tlib#input#ListD(s:state)
+  let command = tlib#input#ListD(s:state)
+
+  if !empty(command)
+    call vimax#RunCommand(command, s:state.address)
+  else
+    echo 'No command specified'
+  endif
 
 endfunction
 
+"fzf sink. handles keybindings
+function! FzfRunCommand(lines)
+
+  if len(a:lines) < 2
+    return
+  endif
+
+  let [ key, item; rest ] = a:lines
+
+  if key == g:VimaxFuzzyBufferBindings.change_target[1]
+    return vimax#List()
+  endif
+
+endfunction
+
+"main fzf history function. 
+"expects a single function, or sink, to handle key bindings
+"and returns the key and selection after, thus necessitating
+"the recursive strategy
+function! s:FzfHistory(address, lines)
+
+  let [ key; commands ] = fzf#run({
+    \ 'source': split(a:lines, '\n'),
+    \ 'sink*': function('FzfRunCommand'),
+    \ 'options': '+m --ansi --prompt="Hist> "'.
+      \ ' --expect=ctrl-a'.
+      \ ' --header "Vimax History :: '.
+        \ s:magenta(g:VimaxFuzzyBufferBindings.change_target[2]).
+        \ ' - change target"'.
+      \ ' --tiebreak=index',
+    \ })
+
+  if key == g:VimaxFuzzyBufferBindings.change_target[1]
+    return s:FzfHistory(g:VimaxLastAddress, a:lines)
+  endif
+
+  for command in commands
+    call vimax#RunCommand(command, a:address)
+  endfor
+
+endfunction
+
+"main history function.
+"Lists command line history for execution and
+"gives keybingings for additional features
 function! vimax#History(...)
 
   let address = s:GetAddress(exists('a:1') ? a:1 : 'none')
@@ -313,15 +430,11 @@ function! vimax#History(...)
     echo "Neither Tlib nor FZF is not loaded.\n
       \You'll have to call :vimax#RunCommand <command> yourself\n\n"
     echo lines
-    return 0
+    return 1
   elseif g:VimaxFuzzyBuffer == 'tlib'
-    let command = s:TlibHistory(address, lines)
+    return s:TlibHistory(address, lines)
+  elseif g:VimaxFuzzyBuffer == 'fzf'
+    return s:FzfHistory(address, lines)
   endif
 
-  if !empty(command)
-    call vimax#RunCommand(command, s:state.address)
-  else
-    echo 'No command specified'
-  endif
 endfunction
-
