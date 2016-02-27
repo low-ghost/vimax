@@ -34,10 +34,15 @@ Put these in your ~/.tmux.conf file and type
 to enable. All examples will assume this configuration
 
 #TODO
-- [ ] maybe: persistent last command dicts across tmux session
 - [x] pull up quicklist with history (limited to g:VimaxHistoryLimit) and allow selecting to send
 - [x] list all addresses and allow selecting to set the last used address (next default)
 - [ ] docs
+- [ ] example gif
 - [ ] run in dir is actually useful. Recommend Dispatch to perform these kinds of actions
       but also give command which replicates pane creation in dir and sets to LastAddress
 - [ ] finish and integrate sending keys by region/range
+- [x] fzf and tlib support based on global variable
+- [ ] potential: persistent last command dicts across tmux session
+- [ ] potential: additional bindings for list and history.
+      including execute prompted command, execute history command, go to, zoom, and run last for list,
+      and edit, and execute at address for history
