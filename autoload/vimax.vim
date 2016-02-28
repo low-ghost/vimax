@@ -2,7 +2,7 @@
 "uses 'none' string b/c of high possibility of 0 address
 function! s:GetAddress(specified_address)
 
-  let prompt_string = "Enter tmux address as [[session:]window.]pane, such as 9 or vim.9 or 0:vim.9\n"
+  let prompt_string = "Tmux address as session:window.pane, session and window optional> "
   if a:specified_address == 'prompt'
     return input(prompt_string)
   elseif a:specified_address != 'none'
@@ -85,12 +85,12 @@ endfunction
 
 "ask for a command to run and execute it in pane from count, arg, last address, or prompt
 function! vimax#PromptCommand(...)
-  let default = a:0 == 1 ? a:1 : ""
-  let command = input(g:VimaxPromptString, default)
+  let address = s:GetAddress(exists('a:1') ? a:1 : 'none')
+  let command = input(g:VimaxPromptString)
   if empty(command)
     echo 'No command specified'
   else
-    call vimax#RunCommand(command)
+    call vimax#RunCommand(command, address)
   endif
 
   call repeat#set('\<Plug>vimax#RunLastCommand', v:count)
@@ -105,18 +105,6 @@ function! vimax#CloseAddress()
   endif
   call system('tmux kill-pane -t '.address)
 endfunction
-
-"turns pane into a window and a window into a pane
-"TODO:
-"function! VimaxToggleAddress()
-"  if _VimuxRunnerType() == "window"
-"    call system("tmux join-pane -d -s ".g:VimuxRunnerIndex." -p "._VimuxOption("g:VimuxHeight", 20))
-"    let g:VimuxRunnerType = "pane"
-"  elseif _VimuxRunnerType() == "pane"
-"    let g:VimuxRunnerIndex = substitute(system("tmux break-pane -d -t ".g:VimuxRunnerIndex." -P -F '#{window_index}'"), "\n", "", "")
-"    let g:VimuxRunnerType = "window"
-"  endif
-"endfunction
 
 "travel to an address and zoom in
 function! vimax#ZoomAddress(...)
@@ -218,8 +206,7 @@ function! vimax#GoToAddress(...)
   endif
 
   "set vim and tmux VimaxLastVimAddress variables
-  "Potential TODO: handle session
-  let g:VimaxLastVimAddress = system("tmux display-message -p '#I.#P'")
+  let g:VimaxLastVimAddress = system("tmux display-message -p '#S:#I.#P'")
   call system('tmux set-environment VimaxLastVimAddress '.g:VimaxLastVimAddress)
   let g:VimaxLastAddress = address
 
@@ -246,12 +233,36 @@ function! vimax#InspectAddress(...)
   call system('tmux copy-mode')
 endfunction
 
+"open a new tmux split in current directory
+"and run a command from prompt or from first arg
+function! vimax#RunCommandInDir(...)
+  let path = shellescape(expand('%:p:h'), 1)
+  let command = exists('a:1')
+    \ ? shellescape(a:1)
+    \ : shellescape(input(g:VimaxPromptString))
+  let g:VimaxLastAddress = system(
+    \ 'tmux split-window -'.
+    \ g:VimaxOrientation.' -l '.g:VimaxHeight.
+    \ "\\\; send-keys 'cd ".path." && ".command."'".
+    \ "\\\; send-keys 'Enter'".
+    \ "\\\; display-message -p '#S:#I.#P'"
+    \ )
+  call system('tmux last-pane')
+endfunction
+
 "FuzzyBuffer funtions
 
-"each is a list with [Tlib format, fzf format, display]
-let g:VimaxFuzzyBufferBindings = {
- \ 'change_target': ['<C-a>', 'ctrl-a', 'ctrl-a']
+"single characters to bind ctrl-<char> to action
+let g:VimaxHistoryBindings = {
+ \ 'change_target': 'a',
+ \ 'execute_at_address': 'e'
  \ }
+
+"returns pair of bindings, [ tlib, fzf ]
+"fzf (1) also used for display
+function! s:GetBinding(key)
+  return [ '<C-'.a:key.'>', 'ctrl-'.a:key ]
+endfunction
 
 "format colors for fzf
 function! s:ansi(str, col, bold)
@@ -334,6 +345,21 @@ function! vimax#List()
 
 endfunction
 
+"format history header based on fzf vs tlib
+function! s:GetHistoryHeader()
+  let history_header = 'Vimax History'
+  for func in keys(g:VimaxHistoryBindings)
+    let display = s:GetBinding(g:VimaxHistoryBindings[func])[1]
+    let colored = g:VimaxFuzzyBuffer == 'fzf'
+      \ ? s:magenta(display)
+      \ : display
+
+    let history_header .= ' :: '.colored.
+      \ ' - '.substitute(func, '_', ' ', 'g')
+  endfor
+  return history_header
+endfunction
+
 
 "tlib variation of change target function including nested list
 function! TlibChangeTarget(state, items)
@@ -346,19 +372,39 @@ function! TlibChangeTarget(state, items)
   return a:state
 endfunction
 
+"tlib variation of change target function including nested list
+function! TlibExecuteAtAddress(state, items)
+  for i in a:items
+    let address = vimax#List()
+    call vimax#RunCommand(i, address)
+  endfor
+  let a:state.state = 'display'
+  silent exe ':redraw!'
+  return a:state
+endfunction
+
 "tlib history function.
 "expects individual functions to handle key bindings
 function! s:TlibHistory(address, lines)
 
+  let binds = g:VimaxHistoryBindings
+
+  "to get the key number for a <C-<key>> bind w/ stridx
+  let all_possible_keys = '0abcdefghijklmnopqrstuvwxyz'
+
   let s:state = {
     \ 'type': 's',
-    \ 'query': 'Vimax History :: '.
-    \ g:VimaxFuzzyBufferBindings.change_target[2].' - change target',
+    \ 'query': s:GetHistoryHeader(),
     \ 'key_handlers': [
       \ {
-      \ 'key': 1,
+      \ 'key': stridx(all_possible_keys, binds.change_target),
       \ 'agent': 'TlibChangeTarget',
-      \ 'key_name': g:VimaxFuzzyBufferBindings.change_target[0]
+      \ 'key_name': s:GetBinding(binds.change_target)[0]
+      \ },
+      \ {
+      \ 'key': stridx(all_possible_keys, binds.execute_at_address),
+      \ 'agent': 'TlibExecuteAtAddress',
+      \ 'key_name': s:GetBinding(binds.execute_at_address)[0]
       \ },
     \ ],
     \ 'pick_last_item': 0,
@@ -383,9 +429,17 @@ function! FzfRunCommand(lines)
   endif
 
   let [ key, item; rest ] = a:lines
+  let binds = g:VimaxHistoryBindings
 
-  if key == g:VimaxFuzzyBufferBindings.change_target[1]
+  if key == s:GetBinding(binds.change_target)[1]
     return vimax#List()
+  elseif key == s:GetBinding(binds.execute_at_address)[1]
+    let address = vimax#List()
+    if address == 'none'
+      return
+    else
+      return vimax#RunCommand(item, address)
+    endif
   endif
 
 endfunction
@@ -396,18 +450,34 @@ endfunction
 "the recursive strategy
 function! s:FzfHistory(address, lines)
 
-  let [ key; commands ] = fzf#run({
+  let original_intended_address = a:address
+  let all_key_bindings = []
+  let header = 'Vimax History'
+  let binds = g:VimaxHistoryBindings
+
+  for func in keys(binds)
+    call add(all_key_bindings, s:GetBinding(binds[func])[1])
+  endfor
+
+  let key_commands = fzf#run({
     \ 'source': split(a:lines, '\n'),
     \ 'sink*': function('FzfRunCommand'),
     \ 'options': '+m --ansi --prompt="Hist> "'.
-      \ ' --expect=ctrl-a'.
-      \ ' --header "Vimax History :: '.
-        \ s:magenta(g:VimaxFuzzyBufferBindings.change_target[2]).
-        \ ' - change target"'.
+      \ ' --expect='.join(all_key_bindings, ',').
+      \ ' --header "'.s:GetHistoryHeader().'"'.
       \ ' --tiebreak=index',
     \ })
 
-  if key == g:VimaxFuzzyBufferBindings.change_target[1]
+  if len(key_commands)
+    let [ key; commands ] = key_commands
+  else
+    return
+  endif
+
+  if index(all_key_bindings, key) >= 0
+    if key != g:VimaxHistoryBindings.change_target
+      let g:VimaxLastAddress = original_intended_address
+    endif
     return s:FzfHistory(g:VimaxLastAddress, a:lines)
   endif
 

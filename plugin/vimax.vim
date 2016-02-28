@@ -42,6 +42,14 @@ if !exists('g:VimaxLastCommandDict')
   let g:VimaxLastCommandDict = {}
 endif
 
+if !exists('g:VimaxOrientation')
+  let g:VimaxOrientation = 'v'
+endif
+
+if !exists('g:VimaxHeight')
+  let g:VimaxHeight = 10
+endif
+
 "mappings which accept a count to specify the window and pane
 "one digit is pane only e.g. 1<mapping> is an action for pane 1
 "two digits is window, pane e.g. 12<mapping> is an action for window 1, pane 2
@@ -83,3 +91,5 @@ command VimaxList call vimax#List()
 "nmap ,vk <Plug>VimaxScrollUpInspect
 "nmap ,vj <Plug>VimaxScrollDownInspect
 "nmap ,vq <Plug>VimaxCloseAddress
+"nmap ,vh <Plug>VimaxHistory
+"nmap ,va <Plug>VimaxList
