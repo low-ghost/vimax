@@ -69,6 +69,7 @@ nnoremap <unique> <Plug>VimaxList :call vimax#List()<CR>
 "commands which accept args
 command -nargs=* VimaxPromptCommand call vimax#PromptCommand(<f-args>)
 command -nargs=* VimaxRunLastCommand call vimax#RunLastCommand(<f-args>)
+command -nargs=* VimaxRunCommand call vimax#RunCommand(<f-args>)
 command -nargs=* VimaxInspectAddress call vimax#InspectAddress(<f-args>)
 command -nargs=* VimaxClearAddressHistory call vimax#ClearAddressHistory(<f-args>)
 command -nargs=* VimaxInterruptAddress call vimax#InterruptAddress(<f-args>)

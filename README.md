@@ -8,33 +8,39 @@ This plugin is largely based on [Vimux](https://github.com//benmills/vimux) and 
 
 ##Usage
 
-Vimax works by accepting an 'address' to functions which help to send commands to tmux.
+Vimax works by accepting an 'address' for functions which help to send commands to tmux.
 An address is a combination of session, window, and pane, all of which are optional.
 If no address is given, the last targeted address is used for that command, or, if
 no previous address is given, a prompt will ask for a specified pane.
 If just a pane is specified, then the current session and window are used, and so on.
+This will be clearer with the examples given below, but it essentially allows
+sending commands to tmux panes and windows with great ease.
 
 ####Mappings
 
-Vimax provides easy mapping to functions which accept up to three, one digit numbers to specify session, window and pane.
-For instance, if VimaxPromptCommand is mapped to `<leader>vp` then pressing `2<leader>vp` will ask for a command that will be executed in pane 2
+Vimax provides easy mappings which accept up to three, one digit numbers to specify session, window and pane.
+For instance, lets say VimaxPromptCommand is mapped to `<leader>vp`.
+VimaxPromptCommand prompts for user input of any command and then executes it in the specified target address.
+Pressing `2<leader>vp` will ask for a command that will be executed in pane 2
 of the current window, and `132<leader>vp` will select session 1, window 3 and pane 2. Just `<leader>vp` will use the last targeted address.
 Here is a full example mapping:
 
 ```
-nmap ,vp <Plug>VimaxPromptCommand
-nmap ,vl <Plug>VimaxRunLastCommand
-nmap ,vi <Plug>VimaxInspectAddress
-nmap ,vc <Plug>VimaxClearAddressHistory
-nmap ,vx <Plug>VimaxInterruptAddress
-nmap ,vz <Plug>VimaxZoomAddress
-nmap ,vg <Plug>VimaxGoToAddress
-nmap ,vk <Plug>VimaxScrollUpInspect
-nmap ,vj <Plug>VimaxScrollDownInspect
-nmap ,vq <Plug>VimaxCloseAddress
-nmap ,vh <Plug>VimaxHistory
-nmap ,va <Plug>VimaxList
+nmap <leader>vp <Plug>VimaxPromptCommand
+nmap <leader>vl <Plug>VimaxRunLastCommand
+nmap <leader>vi <Plug>VimaxInspectAddress
+nmap <leader>vc <Plug>VimaxClearAddressHistory
+nmap <leader>vx <Plug>VimaxInterruptAddress
+nmap <leader>vz <Plug>VimaxZoomAddress
+nmap <leader>vg <Plug>VimaxGoToAddress
+nmap <leader>vk <Plug>VimaxScrollUpInspect
+nmap <leader>vj <Plug>VimaxScrollDownInspect
+nmap <leader>vq <Plug>VimaxCloseAddress
+nmap <leader>vh <Plug>VimaxHistory
+nmap <leader>va <Plug>VimaxList
 ```
+
+The `<leader>va` might be a bit of a stretch, a for addresses
 
 ####Commands
 
@@ -60,7 +66,32 @@ You can also call vimax functions directly with string values for addresses, lik
 ```
 This is useful if you want to hack something like support for your favorite test suite.
 
-##Tmux Specific Config
+####Interactive Buffers
+
+Vimax provides interactive buffers for listing windows and listing command line history.
+The interactive elements rely on either [fzf](https://github.com/junegunn/fzf) or [tlib](https://github.com/tomtom/tlib_vim).
+
+VimaxList will provide a buffer with the list of panes available and allow fuzzy searching to select an address
+which will be used as the default in the next command. If mapped to `<leader>va`, then hit that key combo,
+start typing a few letters of the process you are targeting or a few numbers of the address and hit enter.
+
+VimaxHistory will provide a buffer of recent command line history and allow fuzzy searching to select a command
+for execution. If mapped to `<leader>vh` then hit that combination, start typing something from the recent history,
+say 'npm run' and hit enter. VimaxHistory accepts a count and will execute the selected command at that address,
+so `2<leader>vh` followed by `npm run` and `enter` will run the most recent command containing `npm run` in pane 2
+of the current window. VimaxHistory also adds functionality for changing target addresses and for executing a command at an
+address while remaining in the gui menu. These are bound to ctrl-t and ctrl-e by default, but can be configured
+via a global variable. More on that below in 'Configuration'.
+
+Pressing ctrl-t will bring up VimaxList and allow selecting an address in which the command will be executed.
+Here's an example: I press `2<leader>vh` assuming I want to execute something from the history in pane 2.
+I then change my mind and want to execute in pane 3 instead, so I hit ctrl-t, select pane 3 from the gui list,
+and hit enter to return to the history selection menu.
+
+Pressing ctrl-e will execute the command under the cursor after pulling up the VimaxList gui to select an address
+and return to the history menu after the command begins executing.
+
+##Tmux Specific Config (Go Back to Vim and Pane Numbering)
 
 Vimax adds functionality to return to the last vim address via a key combination.
 Here's a sample mapping to <prefix><C-o>
@@ -87,7 +118,7 @@ Put these in your ~/.tmux.conf file and type
 ```
 to enable. All examples will assume this configuration.
 
-<prefix>q might also be useful, it shows the pane numbers in the current window
+`<prefix>q` might also be useful, it shows the pane numbers in the current window
 
 #TODO
 - [x] pull up quicklist with history (limited to g:VimaxHistoryLimit) and allow selecting to send
