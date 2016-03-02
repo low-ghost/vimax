@@ -225,4 +225,4 @@ to enable. All examples will assume this configuration.
         * Tmux specific like rename window, bring pane into current window, break from current window, close pane (with prompt)
       * History
         * edit (via prompt and ctrl-f)
-        * execute at address~~(done)
+        * ~~execute at address~~(done)
