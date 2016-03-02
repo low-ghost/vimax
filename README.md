@@ -4,7 +4,41 @@ An ax for maximum tmux and vim control... or something
 
 ##Vimux Based Functionality
 
-This plugin is largely based on [Vimux](https://github.com//benmills/vimux) and is enhanced to allow a finer grain of control over sending commands and text to multiple tmux panes and windows. Primarily, all Vimux functions now accept a count or argument to specify the target window and pane—a combination refered to as an address—with which we wish to interact.
+This plugin is largely based on [Vimux](https://github.com//benmills/vimux) and is enhanced to allow a finer grain of control
+over sending commands and text to multiple tmux panes and windows. Primarily, all Vimux functions now accept
+a count or argument to specify the target window and pane—a combination refered to as an address—with which we wish to interact.
+
+##Installation
+
+Installing Vimax is easy with any plugin manager. For instance, with Vundle, just put
+```
+Bundle 'low-ghost/vimax'
+```
+in your vimrc, run `:source ~/.vimrc` and run `:BundleInstall`. With vim-plug, just
+```
+Plug 'low-ghost/vimax'
+```
+and run `:PlugInstall`.
+
+####Optional Dependencies
+
+Vimax has a few commands and mappings which provide an interactive buffer to help navigate panes and select commands from history.
+To get this full functionality, install either [fzf](https://github.com/junegunn/fzf) or [tlib](https://github.com/tomtom/tlib_vim).
+Fzf is frankly a bit nicer, but it does have an external dependency while tlib can be installed easily with vim-plug or vundle etc
+in exactly the same way as above. To install fzf, follow the instructions listed on the fzf github page by cloning and running the install script:
+```
+git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+~/.fzf/install
+```
+Then either put this in your vimrc:
+```
+set rtp+=~/.fzf
+```
+Or, if you're using vim-plug:
+```
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all'  }
+```
+And you're good to go (no [fzf.vim](https://github.com/junegunn/fzf.vim) required, though it might be up your ally)
 
 ##Usage
 
@@ -91,7 +125,51 @@ and hit enter to return to the history selection menu.
 Pressing ctrl-e will execute the command under the cursor after pulling up the VimaxList gui to select an address
 and return to the history menu after the command begins executing.
 
-##Tmux Specific Config (Go Back to Vim and Pane Numbering)
+##Configuration
+
+Besides allowing (well requiring) custom mappings, Vimax allows several points of configuration through global variables.
+Here is a complete list and description of these variables:
+
+g:VimaxFuzzyBuffer:
+    description: dependency for interactive buffer and is either 'fzf', 'tlib', or none. Should be set automatically,
+        but you can switch back and forth with let g:VimaxFuzzyBuffer='tlib'
+    default: fzf if loaded, then tlib, then none
+
+
+g:VimaxHistoryFile:
+    description: location of shell history file. Should be accessable with $HISTFILE, but inconcistencies in tmux/bash
+        environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zhistory' for zsh.
+    default: $HOME.'/.bash_history'
+
+g:VimaxLimitHistory:
+    description: number of commands pulled from the history file. Can be pretty large with fzf without worry
+    default: 25
+
+g:VimaxPromptString:
+    description: string presented when prompting for a command
+    default: 'Command? '
+
+g:VimaxResetSequence:
+    description: sequence of keys sent to Tmux to exit copy-mode
+    default: = 'q C-u'
+
+
+g:VimaxLastCommandDict:
+    description: command dictionary with Tmux addresses as keys, string commands as props. Available if you'd want
+        to prefill values, but probably not that useful
+    default: {}
+
+g:VimaxOrientation:
+    description: vimax#RunCommandInDir creates a new pane in either a vertical or horizontal split, specified
+        by setting g:VimaxOrientation to 'v' or 'h'
+    default: 'v'
+
+g:VimaxHeight
+    description: height of vimax#RunCommandInDir pane in lines
+    default: 10
+
+
+####Tmux Specific Config (Go Back to Vim and Pane Numbering)
 
 Vimax adds functionality to return to the last vim address via a key combination.
 Here's a sample mapping to <prefix><C-o>
