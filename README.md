@@ -223,5 +223,5 @@ to enable. All examples will assume this configuration.
         * zoom
         * run last
       * History
-        *edit (via prompt and ctrl-f)
-        *~~execute at address~~(done)
+        * edit (via prompt and ctrl-f)
+        * ~~execute at address~~(done)
