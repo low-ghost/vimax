@@ -130,10 +130,10 @@ and return to the history menu after the command begins executing.
 Besides allowing (well requiring) custom mappings, Vimax allows several points of configuration through global variables.
 Here is a complete list and description of these variables:
 
-g:VimaxFuzzyBuffer:
-    description: dependency for interactive buffer and is either 'fzf', 'tlib', or none. Should be set automatically,
-        but you can switch back and forth with let g:VimaxFuzzyBuffer='tlib'
-    default: fzf if loaded, then tlib, then none
+* g:VimaxFuzzyBuffer:
+..****description: dependency for interactive buffer and is either 'fzf', 'tlib', or none. Should be set automatically,
+  but you can switch back and forth with let g:VimaxFuzzyBuffer='tlib'
+..*default: fzf if loaded, then tlib, then none
 
 
 g:VimaxHistoryFile:
@@ -209,5 +209,13 @@ to enable. All examples will assume this configuration.
 - [x] fzf and tlib support based on global variable
 - [ ] potential: persistent last command dicts across tmux session
 - [ ] potential: additional bindings for list and history.
-      including execute prompted command, execute history command, go to, zoom, and run last for list,
-      and edit, and ~~execute at address~~(done) for history
+      including
+      * List
+      ..* execute prompted command
+      ..* execute history command
+      ..* go to
+      ..* zoom
+      ..* run last
+      * History
+      ..*edit (via prompt and ctrl-f)
+      ..*~~execute at address~~(done)
