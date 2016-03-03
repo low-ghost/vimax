@@ -84,9 +84,14 @@ function! vimax#RunLastCommand(...)
 endfunction
 
 "ask for a command to run and execute it in pane from count, arg, last address, or prompt
+"args: address, default, commandmode
 function! vimax#PromptCommand(...)
   let address = s:GetAddress(exists('a:1') ? a:1 : 'none')
-  let command = input(g:VimaxPromptString)
+  if exists('a:2')
+    let command = input(g:VimaxPromptString, a:2)
+  else
+    let command = input(g:VimaxPromptString)
+  endif
   if empty(command)
     echo 'No command specified'
   else
@@ -255,7 +260,8 @@ endfunction
 "single characters to bind ctrl-<char> to action
 let g:VimaxHistoryBindings = {
  \ 'change_target': 'a',
- \ 'execute_at_address': 'e'
+ \ 'run_at_address': 'r',
+ \ 'edit': 'e',
  \ }
 
 "returns pair of bindings, [ tlib, fzf ]
@@ -294,10 +300,10 @@ function! s:SetAndReturnLastAddress(picked)
 endfunction
 
 "tlib variation of the list function
-function! s:TlibList(lines)
+function! s:TlibList(lines, header)
   let state = {
     \ 'type': 's',
-    \ 'query': 'Vimax Address List',
+    \ 'query': a:header,
     \ 'pick_last_item': 0,
     \ }
   let state.base = split(a:lines, '\n')
@@ -306,11 +312,11 @@ function! s:TlibList(lines)
 endfunction
 
 "fzf variation of the list function
-function! s:FzfList(lines)
+function! s:FzfList(lines, header)
   let picked = fzf#run({
     \ 'source': reverse(split(a:lines, '\n')),
     \ 'options': '--ansi --prompt="Address> "'.
-      \ ' --header "Vimax Address List"'.
+      \ ' --header '.a:header.
       \ ' --tiebreak=index',
     \ })
   if len(picked)
@@ -323,7 +329,7 @@ endfunction
 "main address listing function.
 "Selects function for fuzzy listing
 "or just echoes the list
-function! vimax#List()
+function! vimax#List(...)
 
   let lines = system(
     \ 'tmux lsp'.
@@ -333,12 +339,15 @@ function! vimax#List()
     \ ' #{?pane_active,(active),}"'
     \ )
 
+  let unquoted_header = exists('a:1') ? a:1 : 'Vimax Address List'
+  let header = '"'.unquoted_header.'"'
+
   if g:VimaxFuzzyBuffer == 'none'
     echo lines
   elseif g:VimaxFuzzyBuffer == 'tlib'
-    return s:TlibList(lines)
+    return s:TlibList(lines, header)
   elseif g:VimaxFuzzyBuffer == 'fzf'
-    return s:FzfList(lines)
+    return s:FzfList(lines, header)
   endif
 
   return 'none'
@@ -360,11 +369,10 @@ function! s:GetHistoryHeader()
   return history_header
 endfunction
 
-
 "tlib variation of change target function including nested list
 function! TlibChangeTarget(state, items)
   for i in a:items
-    let new_address = vimax#List()
+    let new_address = vimax#List('Change Target Address for History')
     let s:state.address = new_address
   endfor
   let a:state.state = 'display'
@@ -375,8 +383,19 @@ endfunction
 "tlib variation of change target function including nested list
 function! TlibExecuteAtAddress(state, items)
   for i in a:items
-    let address = vimax#List()
+    let address = vimax#List('Run at Address')
     call vimax#RunCommand(i, address)
+  endfor
+  let a:state.state = 'display'
+  silent exe ':redraw!'
+  return a:state
+endfunction
+
+"tlib variation of edit function including nested list
+function! TlibEdit(state, items)
+  for i in a:items
+    let address = vimax#List('Run History Command at Address After Editing')
+    call vimax#PromptCommand(address, i)
   endfor
   let a:state.state = 'display'
   silent exe ':redraw!'
@@ -402,9 +421,14 @@ function! s:TlibHistory(address, lines)
       \ 'key_name': s:GetBinding(binds.change_target)[0]
       \ },
       \ {
-      \ 'key': stridx(all_possible_keys, binds.execute_at_address),
+      \ 'key': stridx(all_possible_keys, binds.run_at_address),
       \ 'agent': 'TlibExecuteAtAddress',
-      \ 'key_name': s:GetBinding(binds.execute_at_address)[0]
+      \ 'key_name': s:GetBinding(binds.run_at_address)[0]
+      \ },
+      \ {
+      \ 'key': stridx(all_possible_keys, binds.edit),
+      \ 'agent': 'TlibEdit',
+      \ 'key_name': s:GetBinding(binds.edit)[0]
       \ },
     \ ],
     \ 'pick_last_item': 0,
@@ -432,13 +456,20 @@ function! FzfRunCommand(lines)
   let binds = g:VimaxHistoryBindings
 
   if key == s:GetBinding(binds.change_target)[1]
-    return vimax#List()
-  elseif key == s:GetBinding(binds.execute_at_address)[1]
-    let address = vimax#List()
+    return vimax#List('Change Target Address for History')
+  elseif key == s:GetBinding(binds.run_at_address)[1]
+    let address = vimax#List('Run at Address')
     if address == 'none'
       return
     else
       return vimax#RunCommand(item, address)
+    endif
+  elseif key == s:GetBinding(binds.edit)[1]
+    let address = vimax#List('Run History Command at Address After Editing')
+    if address == 'none'
+      return
+    else
+      return vimax#PromptCommand(address, item)
     endif
   endif
 

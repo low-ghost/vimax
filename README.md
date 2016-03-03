@@ -142,37 +142,85 @@ Here is a complete list and description of these variables:
 </dl>
 
 
-g:VimaxHistoryFile:
-    description: location of shell history file. Should be accessable with $HISTFILE, but inconcistencies in tmux/bash
-        environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zhistory' for zsh.
-    default: $HOME.'/.bash_history'
+<dl>
+  <dt>g:VimaxHistoryFile</dt>
+  <dd><dl>
+    <dt>description</dt>
+    <dd>location of shell history file. Should be accessable with $HISTFILE, but inconcistencies in tmux/bash
+environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zhistory' for zsh.
+    </dd>
+    <dl>default</dl>
+    <dd>$HOME.'/.bash_history'</dd>
+  </dl></dd>
+</dl>
 
-g:VimaxLimitHistory:
-    description: number of commands pulled from the history file. Can be pretty large with fzf without worry
-    default: 25
+<dl>
+  <dt>g:VimaxLimitHistory</dt>
+  <dd><dl>
+    <dt>description</dt>
+    <dd>number of commands pulled from the history file. Can be pretty large with fzf without worry
+    </dd>
+    <dl>default</dl>
+    <dd>25</dd>
+  </dl></dd>
+</dl>
 
-g:VimaxPromptString:
-    description: string presented when prompting for a command
-    default: 'Command? '
+<dl>
+  <dt>g:VimaxPromptString</dt>
+  <dd><dl>
+    <dt>description</dt>
+    <dd>string presented when prompting for a command</dd>
+    <dl>default</dl>
+    <dd>'Command? '</dd>
+  </dl></dd>
+</dl>
 
-g:VimaxResetSequence:
-    description: sequence of keys sent to Tmux to exit copy-mode
-    default: = 'q C-u'
+<dl>
+  <dt>g:VimaxResetSequence</dt>
+  <dd><dl>
+    <dt>description</dt>
+    <dd>sequence of keys sent to Tmux to exit copy-mode</dd>
+    <dl>default</dl>
+    <dd>'q C-u'</dd>
+  </dl></dd>
+</dl>
 
 
-g:VimaxLastCommandDict:
-    description: command dictionary with Tmux addresses as keys, string commands as props. Available if you'd want
-        to prefill values, but probably not that useful
-    default: {}
+<dl>
+  <dt>g:VimaxLastCommandDict</dt>
+  <dd><dl>
+    <dt>description</dt>
+    <dd>
+      command dictionary with Tmux addresses as keys, string commands as props. Available if you'd want
+      to prefill values, but probably not that useful
+    </dd>
+    <dl>default</dl>
+    <dd>{}</dd>
+  </dl></dd>
+</dl>
 
-g:VimaxOrientation:
-    description: vimax#RunCommandInDir creates a new pane in either a vertical or horizontal split, specified
-        by setting g:VimaxOrientation to 'v' or 'h'
-    default: 'v'
+<dl>
+  <dt>g:VimaxOrientation</dt>
+  <dd><dl>
+    <dt>description</dt>
+    <dd>
+      vimax#RunCommandInDir creates a new pane in either a vertical or horizontal split, specified
+      by setting g:VimaxOrientation to 'v' or 'h'
+    </dd>
+    <dl>default</dl>
+    <dd>'v'</dd>
+  </dl></dd>
+</dl>
 
-g:VimaxHeight
-    description: height of vimax#RunCommandInDir pane in lines
-    default: 10
+<dl>
+  <dt>g:VimaxHeight</dt>
+  <dd><dl>
+    <dl>description</dl>
+    <dd>height of vimax#RunCommandInDir pane in lines</dd>
+    <dl>default<dl>
+    <dd>10</dd>
+  </dl></dd>
+</dl>
 
 
 ####Tmux Specific Config (Go Back to Vim and Pane Numbering)
@@ -224,5 +272,5 @@ to enable. All examples will assume this configuration.
         * run last
         * Tmux specific like rename window, bring pane into current window, break from current window, close pane (with prompt)
       * History
-        * edit (via prompt and ctrl-f)
+        * ~~edit (via prompt)~~(done)
         * ~~execute at address~~(done)
