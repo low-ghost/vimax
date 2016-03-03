@@ -262,6 +262,7 @@ let g:VimaxHistoryBindings = {
  \ 'change_target': 'a',
  \ 'run_at_address': 'r',
  \ 'edit': 'e',
+ \ 'help': 'h',
  \ }
 
 "returns pair of bindings, [ tlib, fzf ]
@@ -357,13 +358,22 @@ endfunction
 "format history header based on fzf vs tlib
 function! s:GetHistoryHeader()
   let history_header = 'Vimax History'
+  let display = s:GetBinding(g:VimaxHistoryBindings['help'])[1]
+
+  let colored = g:VimaxFuzzyBuffer == 'fzf'
+    \ ? s:magenta(display)
+    \ : display
+
+  let history_header .= ' :: '.colored.
+    \ ' - show key bindings'
+  return history_header
+endfunction
+
+function! s:HistoryHelp()
+  let history_header = "History Commands\n"
   for func in keys(g:VimaxHistoryBindings)
     let display = s:GetBinding(g:VimaxHistoryBindings[func])[1]
-    let colored = g:VimaxFuzzyBuffer == 'fzf'
-      \ ? s:magenta(display)
-      \ : display
-
-    let history_header .= ' :: '.colored.
+    let history_header .= "\n".display.
       \ ' - '.substitute(func, '_', ' ', 'g')
   endfor
   return history_header
@@ -402,6 +412,14 @@ function! TlibEdit(state, items)
   return a:state
 endfunction
 
+"tlib variation of display help
+function! TlibHelp(state, items)
+  call input(s:HistoryHelp()."\n\nPress Enter to continue")
+  let a:state.state = 'display'
+  silent exe ':redraw!'
+  return a:state
+endfunction
+
 "tlib history function.
 "expects individual functions to handle key bindings
 function! s:TlibHistory(address, lines)
@@ -430,6 +448,11 @@ function! s:TlibHistory(address, lines)
       \ 'agent': 'TlibEdit',
       \ 'key_name': s:GetBinding(binds.edit)[0]
       \ },
+      \ {
+      \ 'key': stridx(all_possible_keys, binds.help),
+      \ 'agent': 'TlibHelp',
+      \ 'key_name': s:GetBinding(binds.help)[0]
+      \ },
     \ ],
     \ 'pick_last_item': 0,
     \ 'address': a:address
@@ -457,6 +480,8 @@ function! FzfRunCommand(lines)
 
   if key == s:GetBinding(binds.change_target)[1]
     return vimax#List('Change Target Address for History')
+  elseif key == s:GetBinding(binds.help)[1]
+    call input(s:HistoryHelp()."\n\nPress Enter to continue")
   elseif key == s:GetBinding(binds.run_at_address)[1]
     let address = vimax#List('Run at Address')
     if address == 'none'
