@@ -210,10 +210,8 @@ environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zh
   <dt>g:VimaxOrientation</dt>
   <dd><dl>
     <dt>description</dt>
-    <dd>
-      vimax#RunCommandInDir creates a new pane in either a vertical or horizontal split, specified
-      by setting g:VimaxOrientation to 'v' or 'h'
-    </dd>
+    <dd>vimax#RunCommandInDir creates a new pane in either a vertical or horizontal split, specified
+      by setting g:VimaxOrientation to 'v' or 'h'</dd>
     <dt>default</dt>
     <dd>'v'</dd>
   </dl></dd>
@@ -224,7 +222,7 @@ environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zh
   <dd><dl>
     <dt>description</dt>
     <dd>height of vimax#RunCommandInDir pane in lines</dd>
-    <dt>default<dt>
+    <dt>default</dt>
     <dd>10</dd>
   </dl></dd>
 </dl>
@@ -234,7 +232,7 @@ environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zh
   <dd><dl>
     <dt>description</dt>
     <dd>Used as default address for next command. Can set manually if the need arises</dd>
-    <dt>default<dt>
+    <dt>default</dt>
     <dd>None. If no address is present, Vimax will prompt for one</dd>
   </dl></dd>
 </dl>
