@@ -149,7 +149,7 @@ Here is a complete list and description of these variables:
     <dd>location of shell history file. Should be accessable with $HISTFILE, but inconcistencies in tmux/bash
 environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zhistory' for zsh.
     </dd>
-    <dl>default</dl>
+    <dt>default</dt>
     <dd>$HOME.'/.bash_history'</dd>
   </dl></dd>
 </dl>
@@ -160,7 +160,7 @@ environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zh
     <dt>description</dt>
     <dd>number of commands pulled from the history file. Can be pretty large with fzf without worry
     </dd>
-    <dl>default</dl>
+    <dt>default</dt>
     <dd>25</dd>
   </dl></dd>
 </dl>
@@ -170,7 +170,7 @@ environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zh
   <dd><dl>
     <dt>description</dt>
     <dd>string presented when prompting for a command</dd>
-    <dl>default</dl>
+    <dt>default</dt>
     <dd>'Command? '</dd>
   </dl></dd>
 </dl>
@@ -180,7 +180,7 @@ environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zh
   <dd><dl>
     <dt>description</dt>
     <dd>sequence of keys sent to Tmux to exit copy-mode</dd>
-    <dl>default</dl>
+    <dt>default</dt>
     <dd>'q C-u'</dd>
   </dl></dd>
 </dl>
@@ -194,7 +194,7 @@ environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zh
       command dictionary with Tmux addresses as keys, string commands as props. Available if you'd want
       to prefill values, but probably not that useful
     </dd>
-    <dl>default</dl>
+    <dt>default</dt>
     <dd>{}</dd>
   </dl></dd>
 </dl>
@@ -207,7 +207,7 @@ environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zh
       vimax#RunCommandInDir creates a new pane in either a vertical or horizontal split, specified
       by setting g:VimaxOrientation to 'v' or 'h'
     </dd>
-    <dl>default</dl>
+    <dt>default</dt>
     <dd>'v'</dd>
   </dl></dd>
 </dl>
@@ -217,7 +217,7 @@ environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zh
   <dd><dl>
     <dl>description</dl>
     <dd>height of vimax#RunCommandInDir pane in lines</dd>
-    <dl>default<dl>
+    <dt>default<dt>
     <dd>10</dd>
   </dl></dd>
 </dl>

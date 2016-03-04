@@ -188,7 +188,7 @@ endfunction
 
 "send escaped text by calling VimaxSendKeys. Needs text and pane explicitly
 function! vimax#SendText(text, address)
-  call vimax#SendKeys('"'.escape(a:text, '"$').'"', a:address)
+  call vimax#SendKeys(shellescape(a:text), a:address)
 endfunction
 
 "send specific keys to a tmux pane. Needs keys and address explicitly
