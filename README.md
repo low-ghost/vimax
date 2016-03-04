@@ -60,21 +60,22 @@ of the current window, and `132<leader>vp` will select session 1, window 3 and p
 Here is a full example mapping:
 
 ```
-nmap <leader>vp <Plug>VimaxPromptCommand
-nmap <leader>vl <Plug>VimaxRunLastCommand
-nmap <leader>vi <Plug>VimaxInspectAddress
+nmap <leader>va <Plug>VimaxList
 nmap <leader>vc <Plug>VimaxClearAddressHistory
+nmap <leader>vd <Plug>VimaxRunCommandInDir
+nmap <leader>vg <Plug>VimaxGoToAddress
+nmap <leader>vh <Plug>VimaxHistory
+nmap <leader>vi <Plug>VimaxInspectAddress
+nmap <leader>vj <Plug>VimaxScrollDownInspect
+nmap <leader>vk <Plug>VimaxScrollUpInspect
+nmap <leader>vl <Plug>VimaxRunLastCommand
+nmap <leader>vp <Plug>VimaxPromptCommand
+nmap <leader>vq <Plug>VimaxCloseAddress
 nmap <leader>vx <Plug>VimaxInterruptAddress
 nmap <leader>vz <Plug>VimaxZoomAddress
-nmap <leader>vg <Plug>VimaxGoToAddress
-nmap <leader>vk <Plug>VimaxScrollUpInspect
-nmap <leader>vj <Plug>VimaxScrollDownInspect
-nmap <leader>vq <Plug>VimaxCloseAddress
-nmap <leader>vh <Plug>VimaxHistory
-nmap <leader>va <Plug>VimaxList
 ```
 
-The `<leader>va` might be a bit of a stretch, a for addresses
+The `<leader>va` might be a bit of a stretch for VimaxList, with 'a' for addresses
 
 ####Commands
 
@@ -89,14 +90,20 @@ are provided as commands and look like this:
 followed by the return key.
 Commands which accept an argument take those arguments first and the address last. Like:
 ```
-:VimaxRunCommand print("Hello, World") repl.1
+:VimaxRunCommand print("Hello,\ World") repl.1
 ```
+Note that you need to escape the space here while the function
+```
+:call vimax#RunCommand('print("Hello, World")', 'repl.1')
+```
+works as expected with quoted values.
 
 ####Functions
 
-You can also call vimax functions directly with string values for addresses, like
+You can also call vimax functions directly with either numbers or string values for addresses, like
 ```
-:call vimax#GoToAddress('1.1')
+:call vimax#GoToAddress(1.1)
+:call vimax#GoToAddress('zsh.1')
 ```
 This is useful if you want to hack something like support for your favorite test suite.
 
@@ -215,13 +222,22 @@ environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zh
 <dl>
   <dt>g:VimaxHeight</dt>
   <dd><dl>
-    <dl>description</dl>
+    <dt>description</dt>
     <dd>height of vimax#RunCommandInDir pane in lines</dd>
     <dt>default<dt>
     <dd>10</dd>
   </dl></dd>
 </dl>
 
+<dl>
+  <dt>g:VimaxLastAddress</dt>
+  <dd><dl>
+    <dt>description</dt>
+    <dd>Used as default address for next command. Can set manually if the need arises</dd>
+    <dt>default<dt>
+    <dd>None. If no address is present, Vimax will prompt for one</dd>
+  </dl></dd>
+</dl>
 
 ####Tmux Specific Config (Go Back to Vim and Pane Numbering)
 

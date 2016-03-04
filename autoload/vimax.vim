@@ -260,8 +260,8 @@ endfunction
 "single characters to bind ctrl-<char> to action
 let g:VimaxHistoryBindings = {
  \ 'change_target': 'a',
- \ 'run_at_address': 'r',
- \ 'edit': 'e',
+ \ 'run_at_address': 'r', "alt support
+ \ 'edit': 'e', "alt support
  \ 'help': 'h',
  \ }
 
@@ -269,6 +269,10 @@ let g:VimaxHistoryBindings = {
 "fzf (1) also used for display
 function! s:GetBinding(key)
   return [ '<C-'.a:key.'>', 'ctrl-'.a:key ]
+endfunction
+
+function! s:GetAltBinding(key)
+  return [ '<M-'.a:key.'>', 'alt-'.a:key ]
 endfunction
 
 "format colors for fzf
@@ -286,7 +290,6 @@ endfor
 "get an address from the format used in vimax#List
 function! s:GetAddressFromListItem(item)
   let [ _, session, window, pane; rest ] =
-    \ matchlist(a:item, '\(\w\+\):.*-\(\w\+\).\(\w\+\)')
   return session.':'.window.'.'.pane
 endfunction
 
@@ -489,6 +492,8 @@ function! FzfRunCommand(lines)
     else
       return vimax#RunCommand(item, address)
     endif
+  elseif key == s:GetAltBinding(binds.run_at_address)[1]
+    call input('alt support!')
   elseif key == s:GetBinding(binds.edit)[1]
     let address = vimax#List('Run History Command at Address After Editing')
     if address == 'none'
@@ -496,6 +501,8 @@ function! FzfRunCommand(lines)
     else
       return vimax#PromptCommand(address, item)
     endif
+  elseif key == s:GetAltBinding(binds.edit)[1]
+    call input('alt support!')
   endif
 
 endfunction
@@ -513,6 +520,9 @@ function! s:FzfHistory(address, lines)
 
   for func in keys(binds)
     call add(all_key_bindings, s:GetBinding(binds[func])[1])
+  if func == 'run_at_address' || func == 'edit'
+    call add(all_key_bindings, s:GetAltBinding(binds[func])[1])
+  endif
   endfor
 
   let key_commands = fzf#run({
