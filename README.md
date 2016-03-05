@@ -5,8 +5,9 @@ An ax for maximum tmux and vim control... or something
 ##Vimux Based Functionality
 
 This plugin is largely based on [Vimux](https://github.com//benmills/vimux) and is enhanced to allow a finer grain of control
-over sending commands and text to multiple tmux panes and windows. Primarily, all Vimux functions now accept
-a count or argument to specify the target window and pane—a combination refered to as an address—with which we wish to interact.
+over sending commands and text to multiple tmux panes and windows. Primarily, all functions and commands now accept
+a count or argument to specify a target tmux pane, placing an entire tmux session (or sessions) at your fingertips.
+Vimax also provides a GUI for listing and executing historical commands and listing available panes to help navigate.
 
 ##Installation
 
@@ -147,8 +148,28 @@ Here is a complete list and description of these variables:
     <dd>fzf if loaded, then tlib, then none</dd>
   </dl></dd>
 </dl>
-
-
+<dl>
+  <dt>g:VimaxHistoryBindings</dt>
+  <dd><dl>
+    <dt>description</dt>
+    <dd>Key bindings for History GUI buffer. To override defaults, you will have to put
+    `let g:VimaxHistoryBindings = {
+    \ 'edit': 'w'
+    \ }`
+    in your vimrc and the other defaults will merge in. run_at_address and edit will have matching
+    alt bindings to allow picking a different address from the one invoked with history.
+    </dd>
+    <dt>default</dt>
+    <dd>
+     `{
+      'change_target': 'a',
+      'run_at_address': 'r',
+      'edit': 'e',
+      'help': 'h',
+     }`
+    </dd>
+  </dl></dd>
+</dl>
 <dl>
   <dt>g:VimaxHistoryFile</dt>
   <dd><dl>
@@ -160,7 +181,6 @@ environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zh
     <dd>$HOME.'/.bash_history'</dd>
   </dl></dd>
 </dl>
-
 <dl>
   <dt>g:VimaxLimitHistory</dt>
   <dd><dl>
@@ -171,7 +191,6 @@ environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zh
     <dd>25</dd>
   </dl></dd>
 </dl>
-
 <dl>
   <dt>g:VimaxPromptString</dt>
   <dd><dl>
@@ -181,7 +200,6 @@ environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zh
     <dd>'Command? '</dd>
   </dl></dd>
 </dl>
-
 <dl>
   <dt>g:VimaxResetSequence</dt>
   <dd><dl>
@@ -191,8 +209,6 @@ environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zh
     <dd>'q C-u'</dd>
   </dl></dd>
 </dl>
-
-
 <dl>
   <dt>g:VimaxLastCommandDict</dt>
   <dd><dl>
@@ -205,7 +221,6 @@ environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zh
     <dd>{}</dd>
   </dl></dd>
 </dl>
-
 <dl>
   <dt>g:VimaxOrientation</dt>
   <dd><dl>
@@ -216,7 +231,6 @@ environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zh
     <dd>'v'</dd>
   </dl></dd>
 </dl>
-
 <dl>
   <dt>g:VimaxHeight</dt>
   <dd><dl>
@@ -226,7 +240,6 @@ environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zh
     <dd>10</dd>
   </dl></dd>
 </dl>
-
 <dl>
   <dt>g:VimaxLastAddress</dt>
   <dd><dl>

@@ -257,14 +257,6 @@ endfunction
 
 "FuzzyBuffer funtions
 
-"single characters to bind ctrl-<char> to action
-let g:VimaxHistoryBindings = {
- \ 'change_target': 'a',
- \ 'run_at_address': 'r',
- \ 'edit': 'e',
- \ 'help': 'h',
- \ }
-
 "returns pair of bindings, [ tlib, fzf ]
 "fzf (1) also used for display
 function! s:GetBinding(key)

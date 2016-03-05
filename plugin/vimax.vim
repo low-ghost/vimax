@@ -50,6 +50,19 @@ if !exists('g:VimaxHeight')
   let g:VimaxHeight = 10
 endif
 
+"single characters to bind ctrl-<char> to action
+"run_at_address and edit also have parallel alt bindings
+if !exists('g:VimaxHistoryBindings')
+  let g:VimaxHistoryBindings = {}
+endif
+
+let g:VimaxHistoryBindings = extend(copy(g:VimaxHistoryBindings), {
+ \ 'change_target': 'a',
+ \ 'run_at_address': 'r',
+ \ 'edit': 'e',
+ \ 'help': 'h',
+ \ })
+
 "mappings which accept a count to specify the window and pane
 "one digit is pane only e.g. 1<mapping> is an action for pane 1
 "two digits is window, pane e.g. 12<mapping> is an action for window 1, pane 2
