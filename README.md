@@ -147,30 +147,30 @@ Here is a complete list and description of these variables:
     <dt>default</dt>
     <dd>fzf if loaded, then tlib, then none</dd>
   </dl></dd>
-</dl>
-<dl>
   <dt>g:VimaxHistoryBindings</dt>
   <dd><dl>
     <dt>description</dt>
     <dd>Key bindings for History GUI buffer. To override defaults, you will have to put
-    `let g:VimaxHistoryBindings = {
-    \ 'edit': 'w'
-    \ }`
+<pre>
+let g:VimaxHistoryBindings = {
+\ 'edit': 'w'
+\ }
+</pre>
     in your vimrc and the other defaults will merge in. run_at_address and edit will have matching
     alt bindings to allow picking a different address from the one invoked with history.
     </dd>
     <dt>default</dt>
     <dd>
-     `{
-      'change_target': 'a',
-      'run_at_address': 'r',
-      'edit': 'e',
-      'help': 'h',
-     }`
+<pre>
+{
+  'change_target': 'a',
+  'run_at_address': 'r',
+  'edit': 'e',
+  'help': 'h',
+}
+</pre>
     </dd>
   </dl></dd>
-</dl>
-<dl>
   <dt>g:VimaxHistoryFile</dt>
   <dd><dl>
     <dt>description</dt>
@@ -180,8 +180,6 @@ environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zh
     <dt>default</dt>
     <dd>$HOME.'/.bash_history'</dd>
   </dl></dd>
-</dl>
-<dl>
   <dt>g:VimaxLimitHistory</dt>
   <dd><dl>
     <dt>description</dt>
@@ -190,8 +188,6 @@ environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zh
     <dt>default</dt>
     <dd>25</dd>
   </dl></dd>
-</dl>
-<dl>
   <dt>g:VimaxPromptString</dt>
   <dd><dl>
     <dt>description</dt>
@@ -199,8 +195,6 @@ environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zh
     <dt>default</dt>
     <dd>'Command? '</dd>
   </dl></dd>
-</dl>
-<dl>
   <dt>g:VimaxResetSequence</dt>
   <dd><dl>
     <dt>description</dt>
@@ -208,8 +202,6 @@ environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zh
     <dt>default</dt>
     <dd>'q C-u'</dd>
   </dl></dd>
-</dl>
-<dl>
   <dt>g:VimaxLastCommandDict</dt>
   <dd><dl>
     <dt>description</dt>
@@ -220,8 +212,6 @@ environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zh
     <dt>default</dt>
     <dd>{}</dd>
   </dl></dd>
-</dl>
-<dl>
   <dt>g:VimaxOrientation</dt>
   <dd><dl>
     <dt>description</dt>
@@ -230,8 +220,6 @@ environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zh
     <dt>default</dt>
     <dd>'v'</dd>
   </dl></dd>
-</dl>
-<dl>
   <dt>g:VimaxHeight</dt>
   <dd><dl>
     <dt>description</dt>
@@ -239,8 +227,6 @@ environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zh
     <dt>default</dt>
     <dd>10</dd>
   </dl></dd>
-</dl>
-<dl>
   <dt>g:VimaxLastAddress</dt>
   <dd><dl>
     <dt>description</dt>
