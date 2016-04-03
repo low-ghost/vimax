@@ -183,10 +183,10 @@ environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zh
   <dt>g:VimaxLimitHistory</dt>
   <dd><dl>
     <dt>description</dt>
-    <dd>number of commands pulled from the history file. Can be pretty large with fzf without worry
+    <dd>number of commands pulled from the history file. Can be pretty large with fzf without worry. If it seems slow, try limiting this number
     </dd>
     <dt>default</dt>
-    <dd>25</dd>
+    <dd>1000</dd>
   </dl></dd>
   <dt>g:VimaxPromptString</dt>
   <dd><dl>

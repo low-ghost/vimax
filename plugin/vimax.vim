@@ -20,7 +20,7 @@ let g:vimax_loaded = 1
 
 "limit the size of shell history loaded into list
 if !exists('g:VimaxLimitHistory')
-  let g:VimaxLimitHistory = 25
+  let g:VimaxLimitHistory = 1000
 endif
 
 "location of shell history file
