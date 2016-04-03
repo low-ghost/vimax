@@ -213,7 +213,7 @@ function! vimax#List(...)
     \ )
 
   let unquoted_header = exists('a:1') ? a:1 : 'Vimax Address List'
-  let fzf_sink = exists('a:2') ? a:2 : 'FzfListSink'
+  let fzf_sink = exists('a:2') ? a:2 : 'vimax#fzf#list_sink'
   let header = '"'.unquoted_header.'"'
 
   if g:VimaxFuzzyBuffer == 'none'

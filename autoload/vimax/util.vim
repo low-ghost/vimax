@@ -7,7 +7,7 @@ endfunction
 "uses 'none' string b/c of high possibility of 0 address
 function! vimax#util#get_address(specified_address)
 
-  let prompt_string = "Tmux address as session:window.pane, session and window optional> "
+  let prompt_string = "Tmux address as session:window.pane> "
   if a:specified_address == 'prompt'
     return input(prompt_string)
   elseif a:specified_address != 'none'

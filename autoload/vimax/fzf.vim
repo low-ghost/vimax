@@ -1,17 +1,17 @@
 "fzf variations of fuzzy search buffer functionality
 
-function! FzfListSink(lines)
+function! vimax#fzf#list_sink(lines)
 
   if !len(a:lines)
     return 'none'
   endif
 
   let [ picked; rest ] = a:lines
-  return vimax#util#setLastAddress(picked)
+  return vimax#util#set_last_address(picked)
 
 endfunction
 
-function! FzfListFromHistorySink(lines)
+function! vimax#fzf#list_from_history_sink(lines)
 
   if !len(a:lines)
     return 'none'
@@ -19,7 +19,7 @@ function! FzfListFromHistorySink(lines)
 
   let [ picked; rest ] = a:lines
   let original_address = g:VimaxLastAddress
-  let address = vimax#util#setLastAddress(picked)
+  let address = vimax#util#set_last_address(picked)
 
   if address != 'none'
     let lines = vimax#fuzzy#get_history_lines()
@@ -36,17 +36,20 @@ function! FzfListFromHistorySink(lines)
 endfunction
 
 function! vimax#fzf#list(lines, header, sink)
-  return fzf#run({
+  let picked = fzf#run({
     \ 'source': reverse(split(a:lines, '\n')),
     \ 'sink*': function(a:sink),
     \ 'options': '--ansi --prompt="Address> "'.
       \ ' --header '.a:header.
       \ ' --tiebreak=index',
     \ })
+  "if !has('nvim')
+    "call function(a:sink)(picked)
+  "endif
 endfunction
 
 "fzf sink. handles keybindings
-function! FzfRunCommand(lines)
+function! vimax#fzf#history_sink(lines)
   if len(a:lines) < 2
     return
   endif
@@ -57,7 +60,7 @@ function! FzfRunCommand(lines)
 
   if key == vimax#fuzzy#get_binding(binds.change_target)[1]
     let s:fzf_history_last_binding = 'change_target'
-    return vimax#List('Change Target Address for History', 'FzfListFromHistorySink')
+    return vimax#List('Change Target Address for History', 'vimax#fzf#list_from_history_sink')
 
   elseif key == vimax#fuzzy#get_binding(binds.help)[1]
     call input(vimax#fuzzy#history_help()."\n\nPress Enter to continue")
@@ -67,14 +70,14 @@ function! FzfRunCommand(lines)
 
   elseif key == vimax#fuzzy#get_alt_binding(binds.run_at_address)[1]
     let s:fzf_history_last = item
-    return vimax#List('Run at Address', 'FzfListFromHistorySink')
+    return vimax#List('Run at Address', 'vimax#fzf#list_from_history_sink')
 
   elseif key == vimax#fuzzy#get_binding(binds.edit)[1]
     call vimax#PromptCommand(address, item)
 
   elseif key == vimax#fuzzy#get_alt_binding(binds.edit)[1]
     let s:fzf_history_last = item
-    return vimax#List('Run History Command at Address After Editing', 'FzfListFromHistorySink')
+    return vimax#List('Run History Command at Address After Editing', 'vimax#fzf#list_from_history_sink')
 
   endif
 
@@ -96,7 +99,7 @@ function! vimax#fzf#history(address, lines)
   let g:VimaxLastAddress = a:address
   return fzf#run({
     \ 'source': a:lines,
-    \ 'sink*': function('FzfRunCommand'),
+    \ 'sink*': function('vimax#fzf#history_sink'),
     \ 'options': '+m --ansi --prompt="Hist> "'.
       \ ' --expect='.join(vimax#fuzzy#get_all_bindings(), ',').
       \ ' --header "'.vimax#fuzzy#history_header().'"'.
