@@ -1,4 +1,5 @@
 "fzf variations of fuzzy search buffer functionality
+let g:VimaxFzfLayout = exists('g:fzf_layout') ? g:fzf_layout : { 'down': '~40%' }
 
 function! vimax#fzf#list_sink(lines)
 
@@ -37,13 +38,13 @@ function! vimax#fzf#list_from_history_sink(lines)
 endfunction
 
 function! vimax#fzf#list(lines, header, sink)
-  return fzf#run({
+  return fzf#run(extend({
     \ 'source': reverse(split(a:lines, '\n')),
     \ 'sink*': function(a:sink),
     \ 'options': '--ansi --prompt="Address> "'.
       \ ' --header '.a:header.
       \ ' --tiebreak=index',
-    \ })
+    \ }, g:VimaxFzfLayout))
 endfunction
 
 "basically forces startinsert, which isn't working in a second fzf instance
@@ -107,13 +108,13 @@ endfunction
 function! vimax#fzf#history(address, lines)
   let s:fzf_history_last_binding = 'none'
   let g:VimaxLastAddress = a:address
-  return fzf#run({
+  return fzf#run(extend({
     \ 'source': reverse(a:lines),
     \ 'sink*': function('vimax#fzf#history_sink'),
     \ 'options': '+m --ansi --prompt="Hist> "'.
       \ ' --expect='.join(vimax#fuzzy#get_all_bindings(), ',').
       \ ' --header "'.vimax#fuzzy#history_header().'"'.
       \ ' --tiebreak=index',
-    \ })
+    \ }, g:VimaxFzfLayout))
 
 endfunction
