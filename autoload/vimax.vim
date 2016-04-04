@@ -1,4 +1,3 @@
-
 "Runs a command to an address based on pane from count, arg, last address,
 "or prompt. Args: command, address (0 if passing to other optional sources),
 "and auto_return (0 if prevent the default of sending an enter key)
@@ -170,6 +169,13 @@ function! vimax#GoToAddress(...)
   endif
 
 endfunction
+"enter window and pane in copy mode
+"
+function! vimax#ExitInspect(...)
+  let address = vimax#util#get_address(exists('a:1') ? a:1 : 'none')
+  let g:VimaxLastAddress = address
+  call vimax#SendKeys(g:VimaxResetSequence, address)
+endfunction
 
 "enter window and pane in copy mode
 function! vimax#InspectAddress(...)
@@ -182,6 +188,17 @@ function! vimax#InspectAddress(...)
   call system('tmux copy-mode')
 endfunction
 
+function! s:run_in_dir(path, command)
+  let g:VimaxLastAddress = system(
+    \ 'tmux split-window -'.
+    \ g:VimaxOrientation.' -l '.g:VimaxHeight.
+    \ "\\\; send-keys 'cd ".a:path." && ".a:command."'".
+    \ "\\\; send-keys 'Enter'".
+    \ "\\\; display-message -p '#S:#I.#P'"
+    \ )
+  call system('tmux last-pane')
+endfunction
+
 "open a new tmux split in current directory
 "and run a command from prompt or from first arg
 function! vimax#RunCommandInDir(...)
@@ -189,14 +206,18 @@ function! vimax#RunCommandInDir(...)
   let command = exists('a:1')
     \ ? shellescape(a:1)
     \ : shellescape(input(g:VimaxPromptString))
-  let g:VimaxLastAddress = system(
-    \ 'tmux split-window -'.
-    \ g:VimaxOrientation.' -l '.g:VimaxHeight.
-    \ "\\\; send-keys 'cd ".path." && ".command."'".
-    \ "\\\; send-keys 'Enter'".
-    \ "\\\; display-message -p '#S:#I.#P'"
-    \ )
-  call system('tmux last-pane')
+  return s:run_in_dir(path, command)
+endfunction
+
+function! vimax#RunCommandAtGitRoot(...)
+  let path = systemlist('git rev-parse --show-toplevel')[0]
+  if v:shell_error
+    return s:warn('Not in git repo')
+  endif
+  let command = exists('a:1')
+    \ ? shellescape(a:1)
+    \ : shellescape(input(g:VimaxPromptString))
+  return s:run_in_dir(path, command)
 endfunction
 
 "main address listing function.

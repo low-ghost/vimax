@@ -77,9 +77,11 @@ nnoremap <unique> <Plug>VimaxList                : call vimax#List()<CR>
 nnoremap <unique> <Plug>VimaxPromptCommand       : <C-U>call vimax#PromptCommand()<CR>
 nnoremap <unique> <Plug>VimaxRunLastCommand      : <C-U>call vimax#RunLastCommand()<CR>
 nnoremap <unique> <Plug>VimaxRunCommandInDir     : <C-U>call vimax#RunCommandInDir()<CR>
+nnoremap <unique> <Plug>VimaxRunCommandAtGitRoot : <C-U>call vimax#RunCommandAtGitRoot()<CR>
 nnoremap <unique> <Plug>VimaxScrollDownInspect   : <C-U>call vimax#ScrollDownInspect()<CR>
 nnoremap <unique> <Plug>VimaxScrollUpInspect     : <C-U>call vimax#ScrollUpInspect()<CR>
 nnoremap <unique> <Plug>VimaxZoomAddress         : <C-U>call vimax#ZoomAddress()<CR>
+nnoremap <unique> <Plug>VimaxExitInspect         : <C-U>call vimax#ExitInspect()<CR>
 
 "commands which accept args
 command -nargs=* VimaxClearAddressHistory call vimax#ClearAddressHistory(<f-args>)
@@ -91,10 +93,12 @@ command -nargs=* VimaxInterruptAddress    call vimax#InterruptAddress(<f-args>)
 command -nargs=* VimaxPromptCommand       call vimax#PromptCommand(<f-args>)
 command -nargs=* VimaxRunCommand          call vimax#RunCommand(<f-args>)
 command -nargs=* VimaxRunCommandInDir     call vimax#RunCommandInDir(<f-args>)
+command -nargs=* VimaxRunCommandAtGitRoot call vimax#RunCommandAtGitRoot(<f-args>)
 command -nargs=* VimaxRunLastCommand      call vimax#RunLastCommand(<f-args>)
 command -nargs=* VimaxScrollDownInspect   call vimax#ScrollDownInspect(<f-args>)
 command -nargs=* VimaxScrollUpInspect     call vimax#ScrollUpInspect(<f-args>)
 command -nargs=* VimaxZoomAddress         call vimax#ZoomAddress(<f-args>)
+command -nargs=* VimaxExitInspect         call vimax#ExitInspect(<f-args>)
 command VimaxList                         call vimax#List()
 
 "example mappings
@@ -109,5 +113,6 @@ command VimaxList                         call vimax#List()
 "nmap ,vl <Plug>VimaxRunLastCommand
 "nmap ,vp <Plug>VimaxPromptCommand
 "nmap ,vq <Plug>VimaxCloseAddress
+"nmap ,vr <Plug>VimaxRunCommandAtGitRoot
 "nmap ,vx <Plug>VimaxInterruptAddress
 "nmap ,vz <Plug>VimaxZoomAddress
