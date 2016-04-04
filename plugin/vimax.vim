@@ -2,21 +2,17 @@ if exists('g:vimax_loaded') || &cp
   finish
 endif
 
+let g:vimax_loaded = 1
 
 "fuzzy buffer preference. fzf and tlib are (will be) supported. if none,
 "simple vim 'echo's are used
-let g:VimaxFuzzyBuffer = 'fzf'
 if !exists('g:VimaxFuzzyBuffer')
-  "TODO: test for run capability
-  if !exists('g:loaded_tlib') || g:loaded_tlib < 11
-    runtime plugin/02tlib.vim
-    let g:VimaxFuzzyBuffer = (!exists('g:loaded_tlib') || g:loaded_tlib < 11) ? 'none' : 'tlib'
-  else
+  if exists('g:loaded_tlib')
     let g:VimaxFuzzyBuffer = 'tlib'
+  else
+    let g:VimaxFuzzyBuffer = 'fzf'
   endif
 endif
-
-let g:vimax_loaded = 1
 
 "limit the size of shell history loaded into list
 if !exists('g:VimaxLimitHistory')
@@ -57,12 +53,16 @@ if !exists('g:VimaxHistoryBindings')
   let g:VimaxHistoryBindings = {}
 endif
 
-let g:VimaxHistoryBindings = extend(copy(g:VimaxHistoryBindings), {
- \ 'change_target': 'a',
+let g:VimaxHistoryBindings = extend({
+ \ 'change_target': 't',
  \ 'run_at_address': 'r',
  \ 'edit': 'e',
  \ 'help': 'h',
- \ })
+ \ }, copy(g:VimaxHistoryBindings))
+
+if !exists('g:VimaxFzfLayout')
+  let g:VimaxFzfLayout = exists('g:fzf_layout') ? g:fzf_layout : { 'down': '~40%' }
+endif
 
 "mappings which accept a count to specify the window and pane
 "one digit is pane only e.g. 1<mapping> is an action for pane 1

@@ -1,5 +1,4 @@
 "fzf variations of fuzzy search buffer functionality
-let g:VimaxFzfLayout = exists('g:fzf_layout') ? g:fzf_layout : { 'down': '~40%' }
 
 function! vimax#fzf#list_sink(lines)
 
