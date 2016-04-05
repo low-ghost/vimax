@@ -190,11 +190,9 @@ endfunction
 
 function! s:run_in_dir(path, command)
   let g:VimaxLastAddress = system(
-    \ 'tmux split-window -'.
-    \ g:VimaxOrientation.' -l '.g:VimaxHeight.
+    \ 'tmux split-window -'.g:VimaxOrientation.' -l '.g:VimaxHeight.
     \ "\\\; send-keys 'cd ".a:path." && ".a:command."'".
-    \ "\\\; send-keys 'Enter'".
-    \ "\\\; display-message -p '#S:#I.#P'"
+    \ "\\\; send-keys 'Enter'\\\; display-message -p '#S:#I.#P'"
     \ )
   call system('tmux last-pane')
 endfunction

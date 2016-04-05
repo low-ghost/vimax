@@ -70,3 +70,39 @@ function! vimax#util#set_last_address(picked)
     return 'none'
   endif
 endfunction
+
+" Adapted tpope's unimpaired.vim
+function! vimax#util#do_action(type)
+  let sel_save = &selection
+  let cb_save = &clipboard
+  set selection=inclusive clipboard-=unnamed clipboard-=unnamedplus
+  let reg_save = @@
+
+  if a:type =~ '^.$'
+    silent exe "normal! `<" . a:type . "`>y"
+  elseif a:type == 'line'
+    silent exe "normal! '[V']y"
+  elseif a:type == 'block'
+    silent exe "normal! `[\<C-V>`]y"
+  else
+    silent exe "normal! `[v`]y"
+  endif
+
+  if exists('s:vimax_motion_address') && s:vimax_motion_address != 'none'
+    let address = s:vimax_motion_address
+    let s:vimax_motion_address = 'none'
+  else
+    let address = vimax#util#get_address('none')
+  endif
+
+  call vimax#RunCommand(@@, address)
+
+  let @@ = reg_save
+  let &selection = sel_save
+  let &clipboard = cb_save
+endfunction
+
+function! vimax#util#action_setup()
+  let s:vimax_motion_address = vimax#util#get_address('none')
+  setlocal opfunc=vimax#util#do_action
+endfunction

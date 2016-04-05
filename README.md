@@ -272,7 +272,7 @@ to enable. All examples will assume this configuration.
 - [ ] example gif
 - [x] run in dir is actually useful. Recommend Dispatch to perform these kinds of actions
       but also give command which replicates pane creation in dir and sets to LastAddress
-- [ ] finish and integrate sending keys by region/range
+- [x] finish and integrate sending keys by region/range
 - [x] fzf and tlib support based on global variable
 - [ ] potential: persistent last command dicts across tmux session
 - [ ] potential: additional bindings for list and history.

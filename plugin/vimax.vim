@@ -82,6 +82,8 @@ nnoremap <unique> <Plug>VimaxScrollDownInspect   : <C-U>call vimax#ScrollDownIns
 nnoremap <unique> <Plug>VimaxScrollUpInspect     : <C-U>call vimax#ScrollUpInspect()<CR>
 nnoremap <unique> <Plug>VimaxZoomAddress         : <C-U>call vimax#ZoomAddress()<CR>
 nnoremap <unique> <Plug>VimaxExitInspect         : <C-U>call vimax#ExitInspect()<CR>
+nnoremap <silent> <Plug>VimaxMotion              : <C-U>call vimax#util#action_setup()<CR>g@
+xnoremap <silent> <Plug>VimaxMotion              : <C-U>call vimax#util#do_action(visualmode())<CR>
 
 "commands which accept args
 command -nargs=* VimaxClearAddressHistory call vimax#ClearAddressHistory(<f-args>)
@@ -101,18 +103,22 @@ command -nargs=* VimaxZoomAddress         call vimax#ZoomAddress(<f-args>)
 command -nargs=* VimaxExitInspect         call vimax#ExitInspect(<f-args>)
 command VimaxList                         call vimax#List()
 
-"example mappings
-"nmap ,va <Plug>VimaxList
-"nmap ,vc <Plug>VimaxClearAddressHistory
-"nmap ,vd <Plug>VimaxRunCommandInDir
-"nmap ,vg <Plug>VimaxGoToAddress
-"nmap ,vh <Plug>VimaxHistory
-"nmap ,vi <Plug>VimaxInspectAddress
-"nmap ,vj <Plug>VimaxScrollDownInspect
-"nmap ,vk <Plug>VimaxScrollUpInspect
-"nmap ,vl <Plug>VimaxRunLastCommand
-"nmap ,vp <Plug>VimaxPromptCommand
-"nmap ,vq <Plug>VimaxCloseAddress
-"nmap ,vr <Plug>VimaxRunCommandAtGitRoot
-"nmap ,vx <Plug>VimaxInterruptAddress
-"nmap ,vz <Plug>VimaxZoomAddress
+"default mappings
+if exists('g:VimaxDefaultMappings')
+  nmap <leader>va <Plug>VimaxList
+  nmap <leader>vc <Plug>VimaxClearAddressHistory
+  nmap <leader>vd <Plug>VimaxRunCommandInDir
+  nmap <leader>vg <Plug>VimaxGoToAddress
+  nmap <leader>vh <Plug>VimaxHistory
+  nmap <leader>vi <Plug>VimaxInspectAddress
+  nmap <leader>vj <Plug>VimaxScrollDownInspect
+  nmap <leader>vk <Plug>VimaxScrollUpInspect
+  nmap <leader>vl <Plug>VimaxRunLastCommand
+  nmap <leader>vp <Plug>VimaxPromptCommand
+  nmap <leader>vq <Plug>VimaxCloseAddress
+  nmap <leader>vr <Plug>VimaxRunCommandAtGitRoot
+  nmap <leader>vs <Plug>VimaxMotion
+  xmap <leader>vs <Plug>VimaxMotion
+  nmap <leader>vx <Plug>VimaxInterruptAddress
+  nmap <leader>vz <Plug>VimaxZoomAddress
+endif
