@@ -5,9 +5,10 @@ endfunction
 
 "TODO: check address existence
 "uses 'none' string b/c of high possibility of 0 address
-function! vimax#util#get_address(specified_address)
+function! vimax#util#get_address(specified_address, ...)
 
   let prompt_string = "Tmux address as session:window.pane> "
+  let vcount = exists('a:1') ? a:1 : exists('v:count') && v:count != 0 ? v:count : 'none'
   if a:specified_address == 'prompt'
     return input(prompt_string)
   elseif a:specified_address != 'none'
@@ -16,10 +17,10 @@ function! vimax#util#get_address(specified_address)
       \ type(a:specified_address) == 1
       \ ? a:specified_address
       \ : string(a:specified_address)
-  elseif exists('v:count') && v:count != 0
+  elseif vcount != 'none'
     "join a two or three digit count with a dot so that 10 refers to 1.0 or window 1,
     "pane 0. could also give 3 numbers to indicate session, window, pane
-    let split_count = split(string(v:count), '\zs')
+    let split_count = split(string(vcount), '\zs')
     let length_split = len(split_count)
     if length_split < 3
       return join(split_count, '.')
@@ -73,12 +74,15 @@ endfunction
 
 " Adapted tpope's unimpaired.vim
 function! vimax#util#do_action(type)
+  let vcount = v:count
   let sel_save = &selection
   let cb_save = &clipboard
   set selection=inclusive clipboard-=unnamed clipboard-=unnamedplus
   let reg_save = @@
 
-  if a:type =~ '^.$'
+  if a:type == 'current_line'
+    silent exe 'normal! V$y'
+  elseif a:type =~ '^.$'
     silent exe "normal! `<" . a:type . "`>y"
   elseif a:type == 'line'
     silent exe "normal! '[V']y"
@@ -91,6 +95,8 @@ function! vimax#util#do_action(type)
   if exists('s:vimax_motion_address') && s:vimax_motion_address != 'none'
     let address = s:vimax_motion_address
     let s:vimax_motion_address = 'none'
+  elseif a:type == 'current_line'
+    let address = vimax#util#get_address('none', vcount)
   else
     let address = vimax#util#get_address('none')
   endif

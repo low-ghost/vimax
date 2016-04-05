@@ -84,6 +84,7 @@ nnoremap <unique> <Plug>VimaxZoomAddress         : <C-U>call vimax#ZoomAddress()
 nnoremap <unique> <Plug>VimaxExitInspect         : <C-U>call vimax#ExitInspect()<CR>
 nnoremap <silent> <Plug>VimaxMotion              : <C-U>call vimax#util#action_setup()<CR>g@
 xnoremap <silent> <Plug>VimaxMotion              : <C-U>call vimax#util#do_action(visualmode())<CR>
+nnoremap <silent> <Plug>VimaxMotionCurrentLine   : <C-U>call vimax#util#do_action('current_line')<CR>g@
 
 "commands which accept args
 command -nargs=* VimaxClearAddressHistory call vimax#ClearAddressHistory(<f-args>)
@@ -118,6 +119,7 @@ if exists('g:VimaxDefaultMappings')
   nmap <leader>vq <Plug>VimaxCloseAddress
   nmap <leader>vr <Plug>VimaxRunCommandAtGitRoot
   nmap <leader>vs <Plug>VimaxMotion
+  nmap <leader>vss <Plug>VimaxMotionCurrentLine
   xmap <leader>vs <Plug>VimaxMotion
   nmap <leader>vx <Plug>VimaxInterruptAddress
   nmap <leader>vz <Plug>VimaxZoomAddress
