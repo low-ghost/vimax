@@ -29,6 +29,10 @@ if !exists('g:VimaxPromptString')
   let g:VimaxPromptString = 'Command? '
 endif
 
+if !exists('g:VimaxSplitOrJoinLines')
+  let g:VimaxSplitOrJoinLines = 'split'
+endif
+
 "sequence of keys sent to Tmux to exit copy-mode
 if !exists('g:VimaxResetSequence')
   let g:VimaxResetSequence = 'q C-u'

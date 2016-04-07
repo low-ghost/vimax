@@ -139,6 +139,15 @@ function! vimax#SendText(text, address)
   call vimax#SendKeys(shellescape(a:text), a:address)
 endfunction
 
+"send escaped text by calling VimaxSendKeys. Needs text and pane explicitly
+function! vimax#SendLines(text, address)
+  let split_text = split(a:text, "\n")
+  for i in split_text
+    call vimax#SendKeys(shellescape(i), a:address)
+    call vimax#SendKeys('Enter', a:address)
+  endfor
+endfunction
+
 "send specific keys to a tmux pane. Needs keys and address explicitly
 function! vimax#SendKeys(keys, address)
   let address = type(a:address) == 1 ? a:address : string(a:address)

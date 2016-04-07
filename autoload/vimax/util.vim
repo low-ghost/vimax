@@ -101,7 +101,11 @@ function! vimax#util#do_action(type)
     let address = vimax#util#get_address('none')
   endif
 
-  call vimax#RunCommand(@@, address)
+  if (g:VimaxSplitOrJoinLines == 'split')
+    call vimax#SendLines(@@, address)
+  else
+    call vimax#SendText(substitute(@@, "\n", "", "g"), address)
+  endif
 
   let @@ = reg_save
   let &selection = sel_save
