@@ -13,20 +13,20 @@
                                                                        ~
 ========================================================================
 CONTENTS                                                 *VimaxContents*
-1. Introduction...................|VimaxIntroduction|
-2. Installation...................|VimaxInstallation|
-3. Usage..........................|VimaxUsage|
-  3.1 Mappings....................|VimaxMappings|
-  3.2 Commands....................|VimaxCommands|
-  3.3 Functions...................|VimaxFunctions|
-  3.4 Interactive Buffers.........|VimaxInteractiveBuffers|
-    3.4.1 History Buffer..........|VimaxHistory|
-    3.5.2 List Buffer.............|VimaxList|
-4.0 Configuration.................|VimaxConfiguration|
-5.0 Tmux Configuration............|VimaxTmuxConfiguration|
+1. Introduction...................|Vimax-Introduction|
+2. Usage..........................|Vimax-Usage|
+  2.1 Mappings....................|Vimax-Mappings|
+  2.2 Commands....................|Vimax-Commands|
+  2.3 Functions...................|Vimax-Functions|
+  2.4 Interactive Buffers.........|Vimax-Interactive-Buffers|
+    2.4.1 History Buffer..........|Vimax-History|
+    2.5.2 List Buffer.............|Vimax-List|
+3. Installation...................|Vimax-Installation|
+4. Configuration.................|Vimax-Configuration|
+5. Tmux Configuration............|Vimax-Tmux-Configuration|
 
 ========================================================================
-1. Introduction                                      *VimaxIntroduction*
+1. Introduction                                      *Vimax-Introduction*
 
 This plugin is largely based on Vimux and is enhanced to allow a finer
 grain of control over sending commands and text to multiple tmux panes
@@ -37,3 +37,49 @@ listing and executing historical commands and listing available panes
 to help navigate.
 
 ========================================================================
+
+2. Usage                                                   *Vimax-Usage*
+
+Vimax works by accepting an 'address' for functions which help to send
+commands to tmux. An address is a combination of session, window, and
+pane, all of which are optional. If no address is given, the last
+targeted address is used for that command, or, if no previous address
+is given, a prompt will ask for a specified pane. If just a pane is
+specified, then the current session and window are used, and so on.
+This will be clearer with the examples given below, but it essentially
+allows sending commands to tmux panes and windows with great ease.
+
+2.1 Mappings                                            *Vimax-Mappings*
+------------
+
+Vimax provides easy mappings which accept up to three, one digit
+numbers to specify session, window and pane. For instance, lets say
+VimaxPromptCommand is mapped to `<leader>vp`. VimaxPromptCommand
+prompts for user input of any command and then executes it in the
+specified target address. Pressing `2<leader>vp` will ask for a
+command that will be executed in pane 2 of the current window, and
+`13 <leader>vp` will select session 1, window 3 and pane 2. Just
+`<leader vp` will use the last targeted address. Here is a full example
+mapping:
+
+  nmap <leader>va <Plug>VimaxList
+  nmap <leader>vc <Plug>VimaxClearAddressHistory
+  nmap <leader>vd <Plug>VimaxRunCommandInDir
+  nmap <leader>vg <Plug>VimaxGoToAddress
+  nmap <leader>vh <Plug>VimaxHistory
+  nmap <leader>vi <Plug>VimaxInspectAddress
+  nmap <leader>vj <Plug>VimaxScrollDownInspect
+  nmap <leader>vk <Plug>VimaxScrollUpInspect
+  nmap <leader>vl <Plug>VimaxRunLastCommand
+  nmap <leader>v<CR> <Plug>VimaxExitInspect
+  nmap <leader>vp <Plug>VimaxPromptCommand
+  nmap <leader>vq <Plug>VimaxCloseAddress
+  nmap <leader>vr <Plug>VimaxRunCommandAtGitRoot
+  nmap <leader>vss <Plug>VimaxMotionCurrentLine
+  nmap <leader>vs <Plug>VimaxMotion
+  vmap <leader>vs <Plug>VimaxMotion
+  nmap <leader>vx <Plug>VimaxInterruptAddress
+  nmap <leader>vz <Plug>VimaxZoomAddress
+
+The `<leader>va` might be a bit of a stretch for VimaxList, with 'a'
+for addresses

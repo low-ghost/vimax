@@ -9,38 +9,6 @@ over sending commands and text to multiple tmux panes and windows. Primarily, al
 a count or argument to specify a target tmux pane, placing an entire tmux session (or sessions) at your fingertips.
 Vimax also provides a GUI for listing and executing historical commands and listing available panes to help navigate.
 
-##Installation
-
-Installing Vimax is easy with any plugin manager. For instance, with Vundle, just put
-```
-Bundle 'low-ghost/vimax'
-```
-in your vimrc, run `:source ~/.vimrc` and run `:BundleInstall`. With vim-plug, just
-```
-Plug 'low-ghost/vimax'
-```
-and run `:PlugInstall`.
-
-####Optional Dependencies
-
-Vimax has a few commands and mappings which provide an interactive buffer to help navigate panes and select commands from history.
-To get this full functionality, install either [fzf](https://github.com/junegunn/fzf) or [tlib](https://github.com/tomtom/tlib_vim).
-Fzf is frankly a bit nicer, but it does have an external dependency while tlib can be installed easily with vim-plug or vundle etc
-in exactly the same way as above. To install fzf, follow the instructions listed on the fzf github page by cloning and running the install script:
-```
-git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-~/.fzf/install
-```
-Then either put this in your vimrc:
-```
-set rtp+=~/.fzf
-```
-Or, if you're using vim-plug:
-```
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all'  }
-```
-And you're good to go (no [fzf.vim](https://github.com/junegunn/fzf.vim) required, though it might be up your ally)
-
 ##Usage
 
 Vimax works by accepting an 'address' for functions which help to send commands to tmux.
@@ -70,8 +38,13 @@ nmap <leader>vi <Plug>VimaxInspectAddress
 nmap <leader>vj <Plug>VimaxScrollDownInspect
 nmap <leader>vk <Plug>VimaxScrollUpInspect
 nmap <leader>vl <Plug>VimaxRunLastCommand
+nmap <leader>v<CR> <Plug>VimaxExitInspect
 nmap <leader>vp <Plug>VimaxPromptCommand
 nmap <leader>vq <Plug>VimaxCloseAddress
+nmap <leader>vr <Plug>VimaxRunCommandAtGitRoot
+nmap <leader>vss <Plug>VimaxMotionCurrentLine
+nmap <leader>vs <Plug>VimaxMotion
+vmap <leader>vs <Plug>VimaxMotion
 nmap <leader>vx <Plug>VimaxInterruptAddress
 nmap <leader>vz <Plug>VimaxZoomAddress
 ```
@@ -132,6 +105,39 @@ and hit enter to return to the history selection menu.
 
 Pressing ctrl-e will execute the command under the cursor after pulling up the VimaxList gui to select an address
 and return to the history menu after the command begins executing.
+
+##Installation
+
+Installing Vimax is easy with any plugin manager. For instance, with Vundle, just put
+```
+Bundle 'low-ghost/vimax'
+```
+in your vimrc, run `:source ~/.vimrc` and run `:BundleInstall`. With vim-plug, just
+```
+Plug 'low-ghost/vimax'
+```
+and run `:PlugInstall`.
+
+####Optional Dependencies
+
+Vimax has a few commands and mappings which provide an interactive buffer to help navigate panes and select commands from history.
+To get this full functionality, install either [fzf](https://github.com/junegunn/fzf) or [tlib](https://github.com/tomtom/tlib_vim).
+Fzf is frankly a bit nicer, but it does have an external dependency while tlib can be installed easily with vim-plug or vundle etc
+in exactly the same way as above. To install fzf, follow the instructions listed on the fzf github page by cloning and running the install script:
+```
+git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+~/.fzf/install
+```
+Then either put this in your vimrc:
+```
+set rtp+=~/.fzf
+```
+Or, if you're using vim-plug:
+```
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all'  }
+```
+And you're good to go (no [fzf.vim](https://github.com/junegunn/fzf.vim) required, though it might be up your ally)
+
 
 ##Configuration
 
