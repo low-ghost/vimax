@@ -71,24 +71,24 @@ endif
 "mappings which accept a count to specify the window and pane
 "one digit is pane only e.g. 1<mapping> is an action for pane 1
 "two digits is window, pane e.g. 12<mapping> is an action for window 1, pane 2
-nnoremap <unique> <Plug>VimaxClearAddressHistory : <C-U>call vimax#ClearAddressHistory()<CR>
-nnoremap <unique> <Plug>VimaxCloseAddress        : <C-U>call vimax#CloseAddress()<CR>
-nnoremap <unique> <Plug>VimaxGoToAddress         : <C-U>call vimax#GoToAddress()<CR>
-nnoremap <unique> <Plug>VimaxHistory             : <C-U>call vimax#History()<CR>
-nnoremap <unique> <Plug>VimaxInspectAddress      : <C-U>call vimax#InspectAddress()<CR>
-nnoremap <unique> <Plug>VimaxInterruptAddress    : <C-U>call vimax#InterruptAddress()<CR>
-nnoremap <unique> <Plug>VimaxList                : call vimax#List()<CR>
-nnoremap <unique> <Plug>VimaxPromptCommand       : <C-U>call vimax#PromptCommand()<CR>
-nnoremap <unique> <Plug>VimaxRunLastCommand      : <C-U>call vimax#RunLastCommand()<CR>
-nnoremap <unique> <Plug>VimaxRunCommandInDir     : <C-U>call vimax#RunCommandInDir()<CR>
-nnoremap <unique> <Plug>VimaxRunCommandAtGitRoot : <C-U>call vimax#RunCommandAtGitRoot()<CR>
-nnoremap <unique> <Plug>VimaxScrollDownInspect   : <C-U>call vimax#ScrollDownInspect()<CR>
-nnoremap <unique> <Plug>VimaxScrollUpInspect     : <C-U>call vimax#ScrollUpInspect()<CR>
-nnoremap <unique> <Plug>VimaxZoomAddress         : <C-U>call vimax#ZoomAddress()<CR>
-nnoremap <unique> <Plug>VimaxExitInspect         : <C-U>call vimax#ExitInspect()<CR>
-nnoremap <silent> <Plug>VimaxMotion              : <C-U>call vimax#util#action_setup()<CR>g@
-xnoremap <silent> <Plug>VimaxMotion              : <C-U>call vimax#util#do_action(visualmode())<CR>
-nnoremap <silent> <Plug>VimaxMotionCurrentLine   : <C-U>call vimax#util#do_action('current_line')<CR>g@
+nnoremap <unique> <Plug>VimaxClearAddressHistory :<C-U>call vimax#ClearAddressHistory()<CR>
+nnoremap <unique> <Plug>VimaxCloseAddress        :<C-U>call vimax#CloseAddress()<CR>
+nnoremap <unique> <Plug>VimaxGoToAddress         :<C-U>call vimax#GoToAddress()<CR>
+nnoremap <unique> <Plug>VimaxHistory             :<C-U>call vimax#History()<CR>
+nnoremap <unique> <Plug>VimaxInspectAddress      :<C-U>call vimax#InspectAddress()<CR>
+nnoremap <unique> <Plug>VimaxInterruptAddress    :<C-U>call vimax#InterruptAddress()<CR>
+nnoremap <unique> <Plug>VimaxList                :call vimax#List()<CR>
+nnoremap <unique> <Plug>VimaxPromptCommand       :<C-U>call vimax#PromptCommand()<CR>
+nnoremap <unique> <Plug>VimaxRunLastCommand      :<C-U>call vimax#RunLastCommand()<CR>
+nnoremap <unique> <Plug>VimaxRunCommandInDir     :<C-U>call vimax#RunCommandInDir()<CR>
+nnoremap <unique> <Plug>VimaxRunCommandAtGitRoot :<C-U>call vimax#RunCommandAtGitRoot()<CR>
+nnoremap <unique> <Plug>VimaxScrollDownInspect   :<C-U>call vimax#ScrollDownInspect()<CR>
+nnoremap <unique> <Plug>VimaxScrollUpInspect     :<C-U>call vimax#ScrollUpInspect()<CR>
+nnoremap <unique> <Plug>VimaxZoomAddress         :<C-U>call vimax#ZoomAddress()<CR>
+nnoremap <unique> <Plug>VimaxExitInspect         :<C-U>call vimax#ExitInspect()<CR>
+nnoremap <silent> <Plug>VimaxMotion              :<C-U>call vimax#util#action_setup()<CR>g@
+xnoremap <silent> <Plug>VimaxMotion              :<C-U>call vimax#util#do_action(visualmode())<CR>
+nnoremap <silent> <Plug>VimaxMotionCurrentLine   :<C-U>call vimax#util#do_action('current_line')<CR>g@
 
 "commands which accept args
 command -nargs=* VimaxClearAddressHistory call vimax#ClearAddressHistory(<f-args>)

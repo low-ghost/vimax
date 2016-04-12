@@ -45,8 +45,7 @@ function! vimax#RunLastCommand(...)
   else
     echo 'No last command was found'
   endif
-
-  call repeat#set('\<Plug>vimax#RunLastCommand', v:count)
+  silent! call repeat#set('\<Plug>VimaxRunLastCommand')
 endfunction
 
 "ask for a command to run and execute it in pane from count, arg, last address, or prompt
@@ -64,7 +63,7 @@ function! vimax#PromptCommand(...)
     call vimax#RunCommand(command, address)
   endif
 
-  call repeat#set('\<Plug>vimax#RunLastCommand', v:count)
+  silent! call repeat#set('\<Plug>VimaxRunLastCommand')
 endfunction
 
 "kill a specific address
@@ -95,7 +94,7 @@ function! vimax#ScrollUpInspect(...)
   call vimax#util#return_to_last_vim_address()
   call vimax#SendKeys('C-u', address)
 
-  call repeat#set('\<Plug>vimax#ScrollUpInspect', v:count)
+  silent! call repeat#set("\<Plug>VimaxScrollUpInspect")
 endfunction
 
 "travel to address, insert copy mode, page down, then return to vim
@@ -105,7 +104,7 @@ function! vimax#ScrollDownInspect(...)
   call vimax#util#return_to_last_vim_address()
   call vimax#SendKeys('C-d', address)
 
-  call repeat#set('\<Plug>vimax#ScrollDownInspect', v:count)
+  silent! call repeat#set("\<Plug>VimaxScrollDownInspect")
 endfunction
 
 "send an interrupt sequence (control-c) to address
@@ -118,7 +117,7 @@ function! vimax#InterruptAddress(...)
   let g:VimaxLastAddress = address
   call vimax#SendKeys('^C', address)
 
-  call repeat#set('\<Plug>vimax#InterruptAddress', v:count)
+  silent! call repeat#set("\<Plug>VimaxInterruptAddress")
 endfunction
 
 "clear an address's tmux history and clear the terminal
