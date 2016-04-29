@@ -73,6 +73,7 @@ function! vimax#util#set_last_address(picked)
 endfunction
 
 " Adapted tpope's unimpaired.vim
+" TODO: . repeat for same region, same target
 function! vimax#util#do_action(type)
   let vcount = v:count
   let sel_save = &selection
@@ -100,6 +101,7 @@ function! vimax#util#do_action(type)
   else
     let address = vimax#util#get_address('none')
   endif
+  let g:VimaxLastAddress = address
 
   if (g:VimaxSplitOrJoinLines == 'split')
     call vimax#SendLines(@@, address)

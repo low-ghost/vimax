@@ -67,7 +67,7 @@ function! vimax#PromptCommand(...)
 endfunction
 
 "kill a specific address
-function! vimax#CloseAddress()
+function! vimax#CloseAddress(...)
   let address = vimax#util#get_address(exists('a:1') ? a:1 : 'none')
   if empty(address)
     echo 'No address specified'
@@ -135,14 +135,16 @@ endfunction
 
 "send escaped text by calling VimaxSendKeys. Needs text and pane explicitly
 function! vimax#SendText(text, address)
-  call vimax#SendKeys(shellescape(a:text), a:address)
+  let escaped = escape(shellescape(a:text), ';')
+  call vimax#SendKeys(escaped, a:address)
 endfunction
 
 "send escaped text by calling VimaxSendKeys. Needs text and pane explicitly
 function! vimax#SendLines(text, address)
   let split_text = split(a:text, "\n")
   for i in split_text
-    call vimax#SendKeys(shellescape(i), a:address)
+    let escaped = escape(shellescape(i), ';')
+    call vimax#SendKeys(escaped, a:address)
     call vimax#SendKeys('Enter', a:address)
   endfor
 endfunction
