@@ -73,7 +73,6 @@ function! vimax#util#set_last_address(picked)
 endfunction
 
 " Adapted tpope's unimpaired.vim
-" TODO: . repeat for same region, same target
 function! vimax#util#do_action(type)
   let vcount = v:count
   let sel_save = &selection
@@ -96,10 +95,8 @@ function! vimax#util#do_action(type)
   if exists('s:vimax_motion_address') && s:vimax_motion_address != 'none'
     let address = s:vimax_motion_address
     let s:vimax_motion_address = 'none'
-  elseif a:type == 'current_line'
-    let address = vimax#util#get_address('none', vcount)
   else
-    let address = vimax#util#get_address('none')
+    let address = vimax#util#get_address('none', vcount)
   endif
   let g:VimaxLastAddress = address
 
@@ -108,6 +105,7 @@ function! vimax#util#do_action(type)
   else
     call vimax#SendText(substitute(@@, "\n", "", "g"), address)
   endif
+  let s:last_range_type = a:type
 
   let @@ = reg_save
   let &selection = sel_save
@@ -115,6 +113,13 @@ function! vimax#util#do_action(type)
 endfunction
 
 function! vimax#util#action_setup()
-  let s:vimax_motion_address = vimax#util#get_address('none')
   setlocal opfunc=vimax#util#do_action
+endfunction
+
+function! vimax#util#MotionSendLastRegion()
+  if !exists('s:last_range_type')
+    echo 'no last vimax region to perform'
+    return
+  endif
+  return vimax#util#do_action(s:last_range_type)
 endfunction

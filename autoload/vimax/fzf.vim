@@ -81,13 +81,7 @@ function! vimax#fzf#history_sink(lines)
     return s:nvim_insert_fix()
 
   elseif key == vimax#fuzzy#get_binding(binds.edit)[1]
-    highlight Cursor cterm=reverse gui=reverse
-    call inputsave()
-    highlight Cursor cterm=reverse gui=reverse
     call vimax#PromptCommand(address, item)
-    highlight Cursor cterm=reverse gui=reverse
-    call inputrestore()
-    redraw
 
   elseif key == vimax#fuzzy#get_alt_binding(binds.edit)[1]
     let s:fzf_history_last = item
