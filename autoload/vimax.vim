@@ -135,7 +135,7 @@ endfunction
 
 "send escaped text by calling VimaxSendKeys. Needs text and pane explicitly
 function! vimax#SendText(text, address)
-  let escaped = escape(shellescape(a:text), ';')
+  let escaped = vimax#util#escape(shellescape(a:text))
   call vimax#SendKeys(escaped, a:address)
 endfunction
 
@@ -143,7 +143,7 @@ endfunction
 function! vimax#SendLines(text, address)
   let split_text = split(a:text, "\n")
   for i in split_text
-    let escaped = escape(shellescape(i), ';')
+    let escaped = vimax#util#escape(shellescape(i))
     call vimax#SendKeys(escaped, a:address)
     call vimax#SendKeys('Enter', a:address)
   endfor
@@ -198,11 +198,13 @@ function! vimax#InspectAddress(...)
   call system('tmux copy-mode')
 endfunction
 
+"open a tmux split in specified path, send a <command> and get the new
+"address via display-message so it can be set to g:VimaxLastAddress
 function! s:run_in_dir(path, command)
   let g:VimaxLastAddress = system(
-    \ 'tmux split-window -'.g:VimaxOrientation.' -l '.g:VimaxHeight.
-    \ "\\\; send-keys 'cd ".a:path." && ".a:command."'".
-    \ "\\\; send-keys 'Enter'\\\; display-message -p '#S:#I.#P'"
+    \ 'tmux split-window -'.g:VimaxOrientation.' -l '.g:VimaxHeight.' -c '.a:path.
+    \ "\\\; send-keys \"".a:command."\" 'Enter'".
+    \ "\\\; display-message -p '#S:#I.#P'"
     \ )
   call system('tmux last-pane')
 endfunction
@@ -211,9 +213,7 @@ endfunction
 "and run a command from prompt or from first arg
 function! vimax#RunCommandInDir(...)
   let path = shellescape(expand('%:p:h'), 1)
-  let command = exists('a:1')
-    \ ? shellescape(a:1)
-    \ : shellescape(input(g:VimaxPromptString))
+  let command = exists('a:1') ? a:1 : input(g:VimaxPromptString)
   return s:run_in_dir(path, command)
 endfunction
 
@@ -222,9 +222,7 @@ function! vimax#RunCommandAtGitRoot(...)
   if v:shell_error
     return s:warn('Not in git repo')
   endif
-  let command = exists('a:1')
-    \ ? shellescape(a:1)
-    \ : shellescape(input(g:VimaxPromptString))
+  let command = exists('a:1') ? a:1 : input(g:VimaxPromptString)
   return s:run_in_dir(path, command)
 endfunction
 

@@ -51,6 +51,10 @@ if !exists('g:VimaxHeight')
   let g:VimaxHeight = 10
 endif
 
+if !exists('g:VimaxEscapeChars')
+  let g:VimaxEscapeChars = ';'
+endif
+
 "single characters to bind ctrl-<char> to action
 "run_at_address and edit also have parallel alt bindings
 if !exists('g:VimaxHistoryBindings')

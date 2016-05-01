@@ -37,6 +37,11 @@ function! vimax#util#get_address(specified_address, ...)
   endif
 endfunction
 
+function! vimax#util#escape(str, ...)
+  let to_escape = exists('a:1') ? a:1.g:VimaxEscapeChars : g:VimaxEscapeChars
+  return escape(a:str, to_escape)
+endfunction
+
 "function to return to last vim address, good for functions that need to be in
 "the pane to execute but return to original vim. See VimaxScrollUpInspect
 "and ...Down...
@@ -106,6 +111,8 @@ function! vimax#util#do_action(type)
     call vimax#SendText(substitute(@@, "\n", "", "g"), address)
   endif
   let s:last_range_type = a:type
+  "TODO
+  "silent! call repeat#set("\<Plug>VimaxScrollDownInspect")
 
   let @@ = reg_save
   let &selection = sel_save
@@ -123,3 +130,46 @@ function! vimax#util#MotionSendLastRegion()
   endif
   return vimax#util#do_action(s:last_range_type)
 endfunction
+
+let g:VimaxScratchBufferName = "__VimaxScratch__"
+
+function! vimax#util#open_scratch()
+  let bnum = bufnr(g:VimaxScratchBufferName)
+  if bnum == -1
+    exe "new " . g:VimaxScratchBufferName
+  else
+    let wnum = bufwinnr(bnum)
+    if wnum != -1
+      if winnr() != wnum
+        exe wnum . "wincmd w"
+      endif
+    else
+      "bring existing buffer into view
+      exe "split +buffer" . bnum
+    endif
+  endif
+endfunction
+
+function! s:set_buffer_local_opts()
+  setlocal buftype=nofile
+  setlocal bufhidden=hide
+  setlocal noswapfile
+  setlocal buflisted
+endfunction
+
+function! vimax#util#append_to_scratch(to_append)
+  call vimax#util#open_scratch()
+  let last_scratch_line = line('$')
+  if last_scratch_line ==# 1 && !strlen(getline(1))
+    " line is empty, we overwrite it
+    call append(0, a:to_append)
+    silent exe 'normal! Gdd$'
+  else
+    call append(last_scratch_line, a:to_append)
+    silent exe 'normal! G$'
+  endif
+  " remove trailing white space
+  silent! exe '%s/\s\+$/'
+endfunction
+
+autocmd BufNewFile __VimaxScratch__ call s:set_buffer_local_opts()

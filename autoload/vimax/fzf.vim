@@ -81,7 +81,8 @@ function! vimax#fzf#history_sink(lines)
     return s:nvim_insert_fix()
 
   elseif key == vimax#fuzzy#get_binding(binds.edit)[1]
-    call vimax#PromptCommand(address, item)
+    return vimax#util#append_to_scratch(item)
+    "call vimax#PromptCommand(address, item)
 
   elseif key == vimax#fuzzy#get_alt_binding(binds.edit)[1]
     let s:fzf_history_last = item
