@@ -64,6 +64,15 @@ let g:VimaxHistoryBindings = extend({
  \ 'help': 'h',
  \ }, copy(g:VimaxHistoryBindings))
 
+"single characters to bind ctrl-<char> to action
+if !exists('g:VimaxListBindings')
+  let g:VimaxListBindings = {}
+endif
+
+let g:VimaxListBindings = extend({
+ \ 'help': 'h',
+ \ }, copy(g:VimaxListBindings))
+
 if !exists('g:VimaxFzfLayout')
   let g:VimaxFzfLayout = exists('g:fzf_layout') ? g:fzf_layout : { 'down': '~40%' }
 endif

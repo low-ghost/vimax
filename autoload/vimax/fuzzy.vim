@@ -49,26 +49,25 @@ function! vimax#fuzzy#history_header()
   return history_header
 endfunction
 
-function! vimax#fuzzy#history_help()
-  let binds = g:VimaxHistoryBindings
-  let history_header = "History Commands\n"
-  for func in keys(binds)
-    let display = vimax#fuzzy#get_binding(binds[func])[1]
-    let history_header .= "\n".display.
-      \ ' - '.substitute(func, '_', ' ', 'g')
-    if func == 'run_at_address' || func == 'edit'
-      let display = vimax#fuzzy#get_alt_binding(binds[func])[1]
-      let history_header .= "\n".display.
-        \ '  - prompt for a different address and '.substitute(func, '_', ' ', 'g')
-    endif
-  endfor
-  return history_header
-endfunction
-
 function! vimax#fuzzy#get_history_lines()
   let lines = split(system('tail -'.g:VimaxLimitHistory.' '.g:VimaxHistoryFile), '\n')
   if g:VimaxHistoryFile =~ 'zsh'
     return map(lines, "substitute(v:val, ': \\d*:\\d;', '', '')")
   endif
   return lines
+endfunction
+
+function! vimax#fuzzy#help(binds, title)
+  let header = a:title." Commands\n"
+  for func in keys(a:binds)
+    let display = vimax#fuzzy#get_binding(a:binds[func])[0]
+    let header .= "\n".display.
+      \ ' - '.substitute(func, '_', ' ', 'g')
+    if func == 'run_at_address' || func == 'edit'
+      let display = vimax#fuzzy#get_alt_binding(a:binds[func])[0]
+      let header .= "\n".display.
+        \ ' - prompt for a different address and '.substitute(func, '_', ' ', 'g')
+    endif
+  endfor
+  return header
 endfunction

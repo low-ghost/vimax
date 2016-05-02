@@ -5,6 +5,10 @@ function! vimax#fzf#list_sink(lines)
     return 'none'
   endif
 
+  if key == vimax#fuzzy#get_binding(binds.help)[0]
+    call input(vimax#fuzzy#help(g:VimaxListBindings, 'List')."\n\nPress Enter to continue")
+  endif
+
   let [ picked; rest ] = a:lines
   return vimax#util#set_last_address(picked)
 endfunction
@@ -38,6 +42,7 @@ function! vimax#fzf#list(lines, header, sink)
     \ 'source': reverse(split(a:lines, '\n')),
     \ 'sink*': function(a:sink),
     \ 'options': '--ansi --prompt="Address> "'.
+      \ ' --expect='.join(vimax#fuzzy#get_all_bindings(), ',').
       \ ' --header '.a:header.
       \ ' --tiebreak=index',
     \ }, g:VimaxFzfLayout))
@@ -67,7 +72,7 @@ function! vimax#fzf#history_sink(lines)
     return s:nvim_insert_fix()
 
   elseif key == vimax#fuzzy#get_binding(binds.help)[0]
-    call input(vimax#fuzzy#history_help()."\n\nPress Enter to continue")
+    call input(vimax#fuzzy#help(g:VimaxHistoryBindings, 'History')."\n\nPress Enter to continue")
 
   elseif key == vimax#fuzzy#get_binding(binds.run_at_address)[0]
     call vimax#RunCommand(item, address)
@@ -79,7 +84,6 @@ function! vimax#fzf#history_sink(lines)
 
   elseif key == vimax#fuzzy#get_binding(binds.edit)[0]
     return vimax#util#append_to_scratch(item)
-    "call vimax#PromptCommand(address, item)
 
   elseif key == vimax#fuzzy#get_alt_binding(binds.edit)[0]
     let s:fzf_history_last = item
