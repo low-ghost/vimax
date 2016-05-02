@@ -4,14 +4,10 @@ endif
 
 let g:vimax_loaded = 1
 
-"fuzzy buffer preference. fzf and tlib are (will be) supported. if none,
+"fuzzy buffer preference. At the moment, fzf only supported. If none,
 "simple vim 'echo's are used
 if !exists('g:VimaxFuzzyBuffer')
-  if exists('g:loaded_tlib')
-    let g:VimaxFuzzyBuffer = 'tlib'
-  else
-    let g:VimaxFuzzyBuffer = 'fzf'
-  endif
+  let g:VimaxFuzzyBuffer = 'fzf'
 endif
 
 "limit the size of shell history loaded into list

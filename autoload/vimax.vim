@@ -245,8 +245,6 @@ function! vimax#List(...)
 
   if g:VimaxFuzzyBuffer == 'none'
     echo lines
-  elseif g:VimaxFuzzyBuffer == 'tlib'
-    return vimax#tlib#list(lines, header)
   elseif g:VimaxFuzzyBuffer == 'fzf'
     return vimax#fzf#list(lines, header, fzf_sink)
   endif
@@ -265,12 +263,10 @@ function! vimax#History(...)
 
   if g:VimaxFuzzyBuffer == 'none'
     let g:VimaxLastAddress = address
-    echo "Neither Tlib nor FZF is loaded.\n
+    echo "FZF is not loaded.\n
       \You'll have to call :VimaxRunCommand <command> yourself\n\n"
     echo lines
     return 1
-  elseif g:VimaxFuzzyBuffer == 'tlib'
-    return vimax#tlib#history(address, lines)
   elseif g:VimaxFuzzyBuffer == 'fzf'
     return vimax#fzf#history(address, lines)
   endif

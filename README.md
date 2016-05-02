@@ -84,7 +84,7 @@ This is useful if you want to hack something like support for your favorite test
 ####Interactive Buffers
 
 Vimax provides interactive buffers for listing windows and listing command line history.
-The interactive elements rely on either [fzf](https://github.com/junegunn/fzf) or [tlib](https://github.com/tomtom/tlib_vim).
+The interactive elements rely on [fzf](https://github.com/junegunn/fzf)
 
 VimaxList will provide a buffer with the list of panes available and allow fuzzy searching to select an address
 which will be used as the default in the next command. If mapped to `<leader>va`, then hit that key combo,
@@ -121,9 +121,8 @@ and run `:PlugInstall`.
 ####Optional Dependencies
 
 Vimax has a few commands and mappings which provide an interactive buffer to help navigate panes and select commands from history.
-To get this full functionality, install either [fzf](https://github.com/junegunn/fzf) or [tlib](https://github.com/tomtom/tlib_vim).
-Fzf is frankly a bit nicer, but it does have an external dependency while tlib can be installed easily with vim-plug or vundle etc
-in exactly the same way as above. To install fzf, follow the instructions listed on the fzf github page by cloning and running the install script:
+To get this full functionality, install [fzf](https://github.com/junegunn/fzf).
+To install fzf, follow the instructions listed on the fzf github page by cloning and running the install script:
 ```
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 ~/.fzf/install
@@ -148,10 +147,9 @@ Here is a complete list and description of these variables:
   <dt>g:VimaxFuzzyBuffer</dt>
   <dd><dl>
     <dt>description</dt>
-    <dd>dependency for interactive buffer and is either 'fzf', 'tlib', or none. Should be set automatically,
-  but you can switch back and forth with `let g:VimaxFuzzyBuffer='tlib'`</dd>
+    <dd>dependency for interactive buffer and is either 'fzf', or none</dd>
     <dt>default</dt>
-    <dd>fzf if loaded, then tlib, then none</dd>
+    <dd>fzf</dd>
   </dl></dd>
   <dt>g:VimaxHistoryBindings</dt>
   <dd><dl>
@@ -272,24 +270,15 @@ to enable. All examples will assume this configuration.
 `<prefix>q` might also be useful, it shows the pane numbers in the current window
 
 #TODO
-- [x] pull up quicklist with history (limited to g:VimaxHistoryLimit) and allow selecting to send
-- [x] list all addresses and allow selecting to set the last used address (next default)
 - [ ] docs
 - [ ] example gif
 - [x] run in dir is actually useful. Recommend Dispatch to perform these kinds of actions
-      but also give command which replicates pane creation in dir and sets to LastAddress
 - [x] finish and integrate sending keys by region/range
-- [x] fzf and tlib support based on global variable
-- [ ] potential: persistent last command dicts across tmux session
+- [x] fzf support based on global variable
 - [ ] potential: additional bindings for list and history.
-      including
-      * List
-        * execute prompted command
-        * execute history command
-        * go to
-        * zoom
-        * run last
-        * Tmux specific like rename window, bring pane into current window, break from current window, close pane (with prompt)
-      * History
-        * ~~edit (via prompt)~~(done)
-        * ~~execute at address~~(done)
+  * execute prompted command
+  * execute history command
+  * go to
+  * zoom
+  * run last
+  * Tmux specific like rename window, bring pane into current window, break from current window, close pane (with prompt)

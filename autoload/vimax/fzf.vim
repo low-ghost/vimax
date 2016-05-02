@@ -1,18 +1,15 @@
 "fzf variations of fuzzy search buffer functionality
 
 function! vimax#fzf#list_sink(lines)
-
   if !len(a:lines)
     return 'none'
   endif
 
   let [ picked; rest ] = a:lines
   return vimax#util#set_last_address(picked)
-
 endfunction
 
 function! vimax#fzf#list_from_history_sink(lines)
-
   if !len(a:lines)
     return 'none'
   endif
@@ -64,27 +61,27 @@ function! vimax#fzf#history_sink(lines)
   let binds = g:VimaxHistoryBindings
   let address = g:VimaxLastAddress
 
-  if key == vimax#fuzzy#get_binding(binds.change_target)[1]
+  if key == vimax#fuzzy#get_binding(binds.change_target)[0]
     let s:fzf_history_last_binding = 'change_target'
     call vimax#List('Change Target Address for History', 'vimax#fzf#list_from_history_sink')
     return s:nvim_insert_fix()
 
-  elseif key == vimax#fuzzy#get_binding(binds.help)[1]
+  elseif key == vimax#fuzzy#get_binding(binds.help)[0]
     call input(vimax#fuzzy#history_help()."\n\nPress Enter to continue")
 
-  elseif key == vimax#fuzzy#get_binding(binds.run_at_address)[1]
+  elseif key == vimax#fuzzy#get_binding(binds.run_at_address)[0]
     call vimax#RunCommand(item, address)
 
-  elseif key == vimax#fuzzy#get_alt_binding(binds.run_at_address)[1]
+  elseif key == vimax#fuzzy#get_alt_binding(binds.run_at_address)[0]
     let s:fzf_history_last = item
     call vimax#List('Run at Address', 'vimax#fzf#list_from_history_sink')
     return s:nvim_insert_fix()
 
-  elseif key == vimax#fuzzy#get_binding(binds.edit)[1]
+  elseif key == vimax#fuzzy#get_binding(binds.edit)[0]
     return vimax#util#append_to_scratch(item)
     "call vimax#PromptCommand(address, item)
 
-  elseif key == vimax#fuzzy#get_alt_binding(binds.edit)[1]
+  elseif key == vimax#fuzzy#get_alt_binding(binds.edit)[0]
     let s:fzf_history_last = item
     call vimax#List('Run History Command at Address After Editing', 'vimax#fzf#list_from_history_sink')
     return s:nvim_insert_fix()
@@ -98,7 +95,6 @@ function! vimax#fzf#history_sink(lines)
   endif
 
   return vimax#RunCommand(item, address)
-
 endfunction
 
 "main fzf history function. 
@@ -116,5 +112,4 @@ function! vimax#fzf#history(address, lines)
       \ ' --header "'.vimax#fuzzy#history_header().'"'.
       \ ' --tiebreak=index',
     \ }, g:VimaxFzfLayout))
-
 endfunction

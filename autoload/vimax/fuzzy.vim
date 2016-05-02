@@ -10,14 +10,14 @@ for [s:c, s:a] in items({'black': 30, 'red': 31, 'green': 32, 'yellow': 33, 'blu
     \ "endfunction"
 endfor
 
-"returns pair of bindings, [ tlib, fzf ]
+"returns pair of bindings, [ fzf ]
 function! vimax#fuzzy#get_binding(key)
-  return [ '<C-'.a:key.'>', 'ctrl-'.a:key ]
+  return [ 'ctrl-'.a:key ]
 endfunction
 
-"returns pair of alt bindings, [ tlib, fzf ]
+"returns alt bindings, [ fzf ]
 function! vimax#fuzzy#get_alt_binding(key)
-  return [ '<M-'.a:key.'>', 'alt-'.a:key ]
+  return [ 'alt-'.a:key ]
 endfunction
 
 let s:all_key_bindings = []
@@ -25,9 +25,9 @@ function! vimax#fuzzy#get_all_bindings()
   if empty(s:all_key_bindings)
     let binds = g:VimaxHistoryBindings
     for func in keys(g:VimaxHistoryBindings)
-      call add(s:all_key_bindings, vimax#fuzzy#get_binding(binds[func])[1])
+      call add(s:all_key_bindings, vimax#fuzzy#get_binding(binds[func])[0])
       if func == 'run_at_address' || func == 'edit'
-        call add(s:all_key_bindings, vimax#fuzzy#get_alt_binding(binds[func])[1])
+        call add(s:all_key_bindings, vimax#fuzzy#get_alt_binding(binds[func])[0])
       endif
     endfor
   endif
@@ -35,10 +35,10 @@ function! vimax#fuzzy#get_all_bindings()
 endfunction
 
 
-"format history header based on fzf vs tlib
+"format history header
 function! vimax#fuzzy#history_header()
   let history_header = 'Vimax History'
-  let display = vimax#fuzzy#get_binding(g:VimaxHistoryBindings['help'])[1]
+  let display = vimax#fuzzy#get_binding(g:VimaxHistoryBindings['help'])[0]
 
   let colored = g:VimaxFuzzyBuffer == 'fzf'
     \ ? s:magenta(display)
