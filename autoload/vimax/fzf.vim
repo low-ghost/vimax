@@ -25,10 +25,6 @@ function! vimax#fzf#list_sink(lines)
     return vimax#PromptCommand(picked)
   elseif key == vimax#fuzzy#get_binding(binds.last)[0]
     return vimax#RunLastCommand(picked)
-  elseif key == vimax#fuzzy#get_binding(binds.scroll_up)[0]
-    return vimax#ScrollUpInspect(picked)
-  elseif key == vimax#fuzzy#get_binding(binds.scroll_down)[0]
-    return vimax#ScrollDownInspect(picked)
   endif
 
   let g:VimaxLastAddress = picked

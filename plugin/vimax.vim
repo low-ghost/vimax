@@ -77,8 +77,6 @@ let g:VimaxListBindings = extend({
  \ 'close': 'q',
  \ 'prompt': 'p',
  \ 'last': 'l',
- \ 'scroll_up': 'k',
- \ 'scroll_down': 'j',
  \ }, copy(g:VimaxListBindings))
 
 if !exists('g:VimaxFzfLayout')

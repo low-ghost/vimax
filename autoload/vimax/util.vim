@@ -3,6 +3,18 @@ function! vimax#util#address_split_length(address)
   return [ split_address, len(split_address) ]
 endfunction
 
+function! s:get_address_from_vcount(vcount)
+  "join a two or three digit count with a dot so that 10 refers to 1.0 or window 1,
+  "pane 0. could also give 3 numbers to indicate session, window, pane
+  let split_count = split(string(a:vcount), '\zs')
+  let length_split = len(split_count)
+  if length_split < 3
+    return join(split_count, '.')
+  endif
+  let [ session; rest ] = split_count
+  return session.':'.join(rest, '.')
+endfunction
+
 "TODO: check address existence
 "uses 'none' string b/c of high possibility of 0 address
 function! vimax#util#get_address(specified_address, ...)
@@ -18,16 +30,7 @@ function! vimax#util#get_address(specified_address, ...)
       \ ? a:specified_address
       \ : string(a:specified_address)
   elseif vcount != 'none'
-    "join a two or three digit count with a dot so that 10 refers to 1.0 or window 1,
-    "pane 0. could also give 3 numbers to indicate session, window, pane
-    let split_count = split(string(vcount), '\zs')
-    let length_split = len(split_count)
-    if length_split < 3
-      return join(split_count, '.')
-    else
-      let [ session; rest ] = split_count
-      return session.':'.join(rest, '.')
-    endif
+    return s:get_address_from_vcount(vcount)
   elseif exists('g:VimaxLastAddress')
     "use last address as the default
     return g:VimaxLastAddress
@@ -121,6 +124,10 @@ function! vimax#util#do_action(type)
 endfunction
 
 function! vimax#util#action_setup()
+  "just added
+  if exists('v:count') && v:count != 0
+    let s:vimax_motion_address = s:get_address_from_vcount(v:count)
+  endif
   setlocal opfunc=vimax#util#do_action
 endfunction
 
@@ -134,6 +141,10 @@ endfunction
 
 let g:VimaxScratchBufferName = "__VimaxScratch__"
 
+"Scatch buffer functionality based on scratch.vim
+"https://github.com/vim-scripts/scratch.vim
+"by Yegappan Lakshmanan (yegappan AT yahoo DOT com)
+"TODO: choose size/orientation
 function! vimax#util#open_scratch()
   let bnum = bufnr(g:VimaxScratchBufferName)
   if bnum == -1
