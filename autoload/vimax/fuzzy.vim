@@ -20,18 +20,24 @@ function! vimax#fuzzy#get_alt_binding(key)
   return [ 'alt-'.a:key ]
 endfunction
 
-let s:all_key_bindings = []
-function! vimax#fuzzy#get_all_bindings()
-  if empty(s:all_key_bindings)
-    let binds = g:VimaxHistoryBindings
-    for func in keys(g:VimaxHistoryBindings)
-      call add(s:all_key_bindings, vimax#fuzzy#get_binding(binds[func])[0])
-      if func == 'run_at_address' || func == 'edit'
-        call add(s:all_key_bindings, vimax#fuzzy#get_alt_binding(binds[func])[0])
-      endif
-    endfor
+let s:all_history_bindings = []
+let s:all_list_bindings = []
+
+for func in keys(g:VimaxHistoryBindings)
+  let bind = g:VimaxHistoryBindings[func]
+  call add(s:all_history_bindings, vimax#fuzzy#get_binding(bind)[0])
+  if func == 'run_at_address' || func == 'edit'
+    call add(s:all_history_bindings, vimax#fuzzy#get_alt_binding(bind)[0])
   endif
-  return s:all_key_bindings
+endfor
+
+for func in keys(g:VimaxListBindings)
+  let bind = g:VimaxListBindings[func]
+  call add(s:all_list_bindings, vimax#fuzzy#get_binding(bind)[0])
+endfor
+
+function! vimax#fuzzy#get_all_bindings(group)
+  return a:group == 'history' ? s:all_history_bindings : s:all_list_bindings
 endfunction
 
 
@@ -59,10 +65,10 @@ endfunction
 
 function! vimax#fuzzy#help(binds, title)
   let header = a:title." Commands\n"
+  call input('header')
   for func in keys(a:binds)
     let display = vimax#fuzzy#get_binding(a:binds[func])[0]
-    let header .= "\n".display.
-      \ ' - '.substitute(func, '_', ' ', 'g')
+    let header .= "\n".display.' - '.substitute(func, '_', ' ', 'g')
     if func == 'run_at_address' || func == 'edit'
       let display = vimax#fuzzy#get_alt_binding(a:binds[func])[0]
       let header .= "\n".display.

@@ -109,10 +109,11 @@ function! vimax#util#do_action(type)
     call vimax#SendLines(@@, address)
   else
     call vimax#SendText(substitute(@@, "\n", "", "g"), address)
+    call vimax#SendKeys('Enter', address)
   endif
   let s:last_range_type = a:type
   "TODO
-  "silent! call repeat#set("\<Plug>VimaxScrollDownInspect")
+  "silent! call repeat#set("\<Plug>Vimax...")
 
   let @@ = reg_save
   let &selection = sel_save

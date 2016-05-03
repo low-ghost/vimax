@@ -71,6 +71,14 @@ endif
 
 let g:VimaxListBindings = extend({
  \ 'help': 'h',
+ \ 'go_to': 'g',
+ \ 'zoom': 'z',
+ \ 'inspect': 'i',
+ \ 'close': 'q',
+ \ 'prompt': 'p',
+ \ 'last': 'l',
+ \ 'scroll_up': 'k',
+ \ 'scroll_down': 'j',
  \ }, copy(g:VimaxListBindings))
 
 if !exists('g:VimaxFzfLayout')

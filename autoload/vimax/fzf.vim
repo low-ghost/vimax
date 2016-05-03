@@ -1,16 +1,37 @@
 "fzf variations of fuzzy search buffer functionality
 
 function! vimax#fzf#list_sink(lines)
+
   if !len(a:lines)
     return 'none'
   endif
 
+  let binds = g:VimaxListBindings
+  let [ key, item; rest ] = a:lines
+  let picked = vimax#util#get_address_from_list_item(item)
+
+  "history?
   if key == vimax#fuzzy#get_binding(binds.help)[0]
-    call input(vimax#fuzzy#help(g:VimaxListBindings, 'List')."\n\nPress Enter to continue")
+    call input(vimax#fuzzy#help(binds, 'List')."\n\nPress Enter to continue")
+  elseif key == vimax#fuzzy#get_binding(binds.go_to)[0]
+    return vimax#GoToAddress(picked)
+  elseif key == vimax#fuzzy#get_binding(binds.zoom)[0]
+    return vimax#ZoomAddress(picked)
+  elseif key == vimax#fuzzy#get_binding(binds.inspect)[0]
+    return vimax#InspectAddress(picked)
+  elseif key == vimax#fuzzy#get_binding(binds.close)[0]
+    return vimax#CloseAddress(picked)
+  elseif key == vimax#fuzzy#get_binding(binds.prompt)[0]
+    return vimax#PromptCommand(picked)
+  elseif key == vimax#fuzzy#get_binding(binds.last)[0]
+    return vimax#RunLastCommand(picked)
+  elseif key == vimax#fuzzy#get_binding(binds.scroll_up)[0]
+    return vimax#ScrollUpInspect(picked)
+  elseif key == vimax#fuzzy#get_binding(binds.scroll_down)[0]
+    return vimax#ScrollDownInspect(picked)
   endif
 
-  let [ picked; rest ] = a:lines
-  return vimax#util#set_last_address(picked)
+  let g:VimaxLastAddress = picked
 endfunction
 
 function! vimax#fzf#list_from_history_sink(lines)
@@ -41,8 +62,8 @@ function! vimax#fzf#list(lines, header, sink)
   return fzf#run(extend({
     \ 'source': reverse(split(a:lines, '\n')),
     \ 'sink*': function(a:sink),
-    \ 'options': '--ansi --prompt="Address> "'.
-      \ ' --expect='.join(vimax#fuzzy#get_all_bindings(), ',').
+    \ 'options': '+m --ansi --prompt="Address> "'.
+      \ ' --expect='.join(vimax#fuzzy#get_all_bindings('list'), ',').
       \ ' --header '.a:header.
       \ ' --tiebreak=index',
     \ }, g:VimaxFzfLayout))
@@ -92,7 +113,7 @@ function! vimax#fzf#history_sink(lines)
 
   endif
 
-  if index(vimax#fuzzy#get_all_bindings(), key) >= 0
+  if index(vimax#fuzzy#get_all_bindings('history'), key) >= 0
     let lines = vimax#fuzzy#get_history_lines()
     call vimax#fzf#history(address, lines)
     return s:nvim_insert_fix()
@@ -112,7 +133,7 @@ function! vimax#fzf#history(address, lines)
     \ 'source': reverse(a:lines),
     \ 'sink*': function('vimax#fzf#history_sink'),
     \ 'options': '+m --ansi --prompt="Hist> "'.
-      \ ' --expect='.join(vimax#fuzzy#get_all_bindings(), ',').
+      \ ' --expect='.join(vimax#fuzzy#get_all_bindings('history'), ',').
       \ ' --header "'.vimax#fuzzy#history_header().'"'.
       \ ' --tiebreak=index',
     \ }, g:VimaxFzfLayout))
