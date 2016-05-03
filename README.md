@@ -275,10 +275,6 @@ to enable. All examples will assume this configuration.
 - [x] run in dir is actually useful. Recommend Dispatch to perform these kinds of actions
 - [x] finish and integrate sending keys by region/range
 - [x] fzf support based on global variable
-- [ ] potential: additional bindings for list and history.
-  * execute prompted command
-  * execute history command
-  * go to
-  * zoom
-  * run last
-  * Tmux specific like rename window, bring pane into current window, break from current window, close pane (with prompt)
+- [x] potential: additional bindings for list and history.
+- [ ] Tmux specific actions like rename window, bring pane into current window, break from current window, close pane (with prompt)
+- [ ] Multiline historical entries
