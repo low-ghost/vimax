@@ -90,11 +90,12 @@ endfunction
 "travel to address, insert copy mode, page up, then return to vim
 function! vimax#ScrollUpInspect(...)
   let address = vimax#util#get_address(exists('a:1') ? a:1 : 'none')
-  call vimax#InspectAddress(address)
+  let [ split_address, len_address ] = vimax#util#address_split_length(address)
+	call input(vimax#util#go_to_address(len_address, split_address).'; tmux copy-mode; '.vimax#util#send_keys_text('C-u', address))
+  call system(vimax#util#go_to_address(len_address, split_address).'; tmux copy-mode; '.vimax#util#send_keys_text('C-u', address))
   call vimax#util#return_to_last_vim_address()
-  call vimax#SendKeys('C-u', address)
 
-  silent! call repeat#set("\<Plug>VimaxScrollUpInspect")
+  silent! call repeat#set("\<Plug>VimaxSendPageUp")
 endfunction
 
 "travel to address, insert copy mode, page down, then return to vim
@@ -104,7 +105,7 @@ function! vimax#ScrollDownInspect(...)
   call vimax#util#return_to_last_vim_address()
   call vimax#SendKeys('C-d', address)
 
-  silent! call repeat#set("\<Plug>VimaxScrollDownInspect")
+  silent! call repeat#set("\<Plug>VimaxSendPageDown")
 endfunction
 
 "send an interrupt sequence (control-c) to address
@@ -171,7 +172,7 @@ function! vimax#GoToAddress(...)
   let [ split_address, len_address ] = vimax#util#address_split_length(address)
 
   if len_address == 3
-    call system('tmux select-window -t '.split_address[0].':'.split_address[1].'; tmux select-pane -t '.split_address[2])
+    call system('tmux switch -t '.split_address[0].'; select window -t '.split_address[1].'; tmux select-pane -t '.split_address[2])
   elseif len_address == 2
     call system('tmux select-window -t '.split_address[0].'; tmux select-pane -t '.split_address[1])
   elseif len_address == 1
@@ -194,8 +195,8 @@ function! vimax#InspectAddress(...)
     echo 'No address specified'
     return 0
   endif
-  call vimax#GoToAddress(address)
-  call system('tmux copy-mode')
+  let [ split_address, len_address ] = vimax#util#address_split_length(address)
+  call system(vimax#util#go_to_address(len_address, split_address).'; tmux copy-mode')
 endfunction
 
 "open a tmux split in specified path, send a <command> and get the new

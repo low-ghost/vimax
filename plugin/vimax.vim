@@ -106,6 +106,8 @@ nnoremap <silent> <Plug>VimaxMotion               :<C-U>call vimax#util#action_s
 xnoremap <silent> <Plug>VimaxMotion               :<C-U>call vimax#util#do_action(visualmode())<CR>
 nnoremap <silent> <Plug>VimaxMotionCurrentLine    :<C-U>call vimax#util#do_action('current_line')<CR>
 nnoremap <silent> <Plug>VimaxMotionSendLastRegion :<C-U>call vimax#util#MotionSendLastRegion()<CR>
+nnoremap <unique> <Plug>VimaxSendPageUp           :<C-U>call vimax#SendKeys('C-u', g:VimaxLastAddress)<CR>
+nnoremap <unique> <Plug>VimaxSendPageDown         :<C-U>call vimax#SendKeys('C-d', g:VimaxLastAddress)<CR>
 
 "commands which accept args
 command -nargs=* VimaxClearAddressHistory call vimax#ClearAddressHistory(<f-args>)

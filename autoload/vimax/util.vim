@@ -1,5 +1,5 @@
 function! vimax#util#address_split_length(address)
-  let split_address = split(a:address, '\.')
+  let split_address = split(a:address, '[\.|:]')
   return [ split_address, len(split_address) ]
 endfunction
 
@@ -45,22 +45,28 @@ function! vimax#util#escape(str, ...)
   return escape(a:str, to_escape)
 endfunction
 
+function! vimax#util#send_keys_text(address, keys)
+  let address = type(a:address) == 1 ? a:address : string(a:address)
+  return 'tmux send-keys -t '.address.' '.a:keys
+endfunction
+
+function! vimax#util#go_to_address(len, split)
+  if a:len == 3
+    return 'tmux switch -t '.a:split[0].'; select window -t '.a:split[1].'; tmux select-pane -t '.a:split[2]
+  elseif a:len == 2
+    return 'tmux select-window -t '.a:split[0].'; tmux select-pane -t '.a:split[1]
+  elseif a:len == 1
+    return 'tmux select-pane -t '.a:split[0]
+  endif
+endfunction
+
 "function to return to last vim address, good for functions that need to be in
 "the pane to execute but return to original vim. See VimaxScrollUpInspect
 "and ...Down...
 function! vimax#util#return_to_last_vim_address()
   let [ split_address, len_address ] =
     \ vimax#util#address_split_length(g:VimaxLastVimAddress)
-  if len_address < 3
-    let [ window_address, pane_address ] = split_address
-  else
-    let [ session, window, pane_address ] = split_address
-    let window_address = session.':'.window
-  endif
-  call system('tmux select-window -t '
-    \ .window_address
-    \ .'; tmux select-pane -t '
-    \ .pane_address)
+  call system(vimax#util#go_to_address(len_address, split_address))
 endfunction
 
 "get an address from the format used in vimax#List
