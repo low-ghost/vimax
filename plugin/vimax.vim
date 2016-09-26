@@ -123,6 +123,7 @@ command -nargs=* VimaxScrollDownInspect   call vimax#ScrollDownInspect(<f-args>)
 command -nargs=* VimaxScrollUpInspect     call vimax#ScrollUpInspect(<f-args>)
 command -nargs=* VimaxZoomAddress         call vimax#ZoomAddress(<f-args>)
 command -nargs=* VimaxExitInspect         call vimax#ExitInspect(<f-args>)
+command VimaxOpenScratch                  call vimax#util#open_scratch()
 command VimaxMotionSendLastRegion         call vimax#util#MotionSendLastRegion()
 command VimaxList                         call vimax#List()
 

@@ -90,20 +90,17 @@ endfunction
 "travel to address, insert copy mode, page up, then return to vim
 function! vimax#ScrollUpInspect(...)
   let address = vimax#util#get_address(exists('a:1') ? a:1 : 'none')
-  call vimax#InspectAddress(address)
-  call vimax#util#return_to_last_vim_address()
-  call vimax#SendKeys('C-u', address)
-
+  call system('tmux copy-mode -u -t '.address)
+  let g:VimaxLastAddress = address
   silent! call repeat#set("\<Plug>VimaxScrollUpInspect")
 endfunction
 
 "travel to address, insert copy mode, page down, then return to vim
+"TODO: solve reliance on C-d as page-down
 function! vimax#ScrollDownInspect(...)
   let address = vimax#util#get_address(exists('a:1') ? a:1 : 'none')
-  call vimax#InspectAddress(address)
-  call vimax#util#return_to_last_vim_address()
-  call vimax#SendKeys('C-d', address)
-
+  call system('tmux copy-mode -t '.address.'\; send-keys -t '.address.' C-d')
+  let g:VimaxLastAddress = address
   silent! call repeat#set("\<Plug>VimaxScrollDownInspect")
 endfunction
 
