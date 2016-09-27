@@ -65,7 +65,6 @@ endfunction
 
 function! vimax#fuzzy#help(binds, title)
   let header = a:title." Commands\n"
-  call input('header')
   for func in keys(a:binds)
     let display = vimax#fuzzy#get_binding(a:binds[func])[0]
     let header .= "\n".display.' - '.substitute(func, '_', ' ', 'g')

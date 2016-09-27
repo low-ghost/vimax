@@ -28,6 +28,10 @@ function! vimax#fzf#list_sink(lines)
   endif
 
   let g:VimaxLastAddress = picked
+  "restart list if was help command
+  call vimax#List()
+  return s:nvim_insert_fix()
+
 endfunction
 
 function! vimax#fzf#list_from_history_sink(lines)

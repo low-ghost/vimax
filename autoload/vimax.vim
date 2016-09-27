@@ -111,9 +111,8 @@ function! vimax#InterruptAddress(...)
     echo 'No address specified'
     return 0
   endif
-  let g:VimaxLastAddress = address
   call vimax#SendKeys('^C', address)
-
+  let g:VimaxLastAddress = address
   silent! call repeat#set("\<Plug>VimaxInterruptAddress")
 endfunction
 
@@ -198,6 +197,9 @@ endfunction
 "open a tmux split in specified path, send a <command> and get the new
 "address via display-message so it can be set to g:VimaxLastAddress
 function! s:run_in_dir(path, command)
+  if strlen(command) < 1
+    return
+  endif
   let g:VimaxLastAddress = system(
     \ 'tmux split-window -'.g:VimaxOrientation.' -l '.g:VimaxHeight.' -c '.a:path.
     \ "\\\; send-keys \"".a:command."\" 'Enter'".
