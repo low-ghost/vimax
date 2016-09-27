@@ -79,12 +79,7 @@ endfunction
 "travel to an address and zoom in
 function! vimax#ZoomAddress(...)
   let address = vimax#util#get_address(exists('a:1') ? a:1 : 'none')
-  if empty(address)
-    echo 'No address specified'
-    return 0
-  endif
-  call vimax#GoToAddress(address)
-  call system('tmux resize-pane -Z')
+  let command = vimax#go_to_address_additional(address, 'resize-pane -Z -t'.address)
 endfunction
 
 "travel to address, insert copy mode, page up, then return to vim
@@ -152,31 +147,46 @@ function! vimax#SendKeys(keys, address)
 endfunction
 
 "travel to an address and persist it as the last-used
-function! vimax#GoToAddress(...)
-  let address = vimax#util#get_address(exists('a:1') ? a:1 : 'none')
-  if empty(address)
+function! vimax#go_to_address_additional(address, ...)
+  if empty(a:address)
     echo 'No address specified'
     return 0
   endif
 
+  let additional = exists('a:1') ? a:1 : ''
+
   "set vim and tmux VimaxLastVimAddress variables
   let g:VimaxLastVimAddress = system("tmux display-message -p '#S:#I.#P'")
-  call system('tmux set-environment VimaxLastVimAddress '.g:VimaxLastVimAddress)
-  let g:VimaxLastAddress = address
-
-  let [ split_address, len_address ] = vimax#util#address_split_length(address)
+  call system('touch ~/.vimaxenv && echo "'.g:VimaxLastVimAddress.'" > ~/.vimaxenv')
+  let g:VimaxLastAddress = a:address
+  let len_address = len(split(a:address, '\:\|\.'))
 
   if len_address == 3
-    call system('tmux select-window -t '.split_address[0].':'.split_address[1].'; tmux select-pane -t '.split_address[2])
+    call system(
+      \ 'tmux select-window -t '.a:address.'\; '.
+      \ 'select-pane -t '.a:address.'\; '.
+      \ additional.'\; '.
+      \ 'switch-client -t '.a:address
+      \ )
   elseif len_address == 2
-    call system('tmux select-window -t '.split_address[0].'; tmux select-pane -t '.split_address[1])
+    call system(
+      \ 'tmux select-window -t '.a:address.'\; '.
+      \ 'select-pane -t '.a:address.'\; '.
+      \ additional
+      \ )
   elseif len_address == 1
-    call system('tmux select-pane -t '.split_address[0])
+    call system('tmux select-pane -t '.a:address.'\; '.additional)
   endif
 
 endfunction
+
+"travel to an address and persist it as the last-used
+function! vimax#GoToAddress(...)
+  let address = vimax#util#get_address(exists('a:1') ? a:1 : 'none')
+  call vimax#go_to_address_additional(address)
+endfunction
+
 "enter window and pane in copy mode
-"
 function! vimax#ExitInspect(...)
   let address = vimax#util#get_address(exists('a:1') ? a:1 : 'none')
   let g:VimaxLastAddress = address
@@ -186,12 +196,7 @@ endfunction
 "enter window and pane in copy mode
 function! vimax#InspectAddress(...)
   let address = vimax#util#get_address(exists('a:1') ? a:1 : 'none')
-  if empty(address)
-    echo 'No address specified'
-    return 0
-  endif
-  call vimax#GoToAddress(address)
-  call system('tmux copy-mode')
+  call vimax#go_to_address_additional(address, 'copy-mode')
 endfunction
 
 "open a tmux split in specified path, send a <command> and get the new

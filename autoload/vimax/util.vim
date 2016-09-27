@@ -1,7 +1,7 @@
-function! vimax#util#address_split_length(address)
-  let split_address = split(a:address, '\.')
-  return [ split_address, len(split_address) ]
-endfunction
+"function! vimax#util#address_split_length(address)
+  "let split_address = split(a:address, '\:\|\.')
+  "return [ split_address, len(split_address) ]
+"endfunction
 
 function! s:get_address_from_vcount(vcount)
   "join a two or three digit count with a dot so that 10 refers to 1.0 or window 1,
@@ -19,7 +19,7 @@ endfunction
 "uses 'none' string b/c of high possibility of 0 address
 function! vimax#util#get_address(specified_address, ...)
 
-  let prompt_string = "Tmux address as session:window.pane> "
+  let prompt_string = "Tmux address 'session:win.pane', 'win.pane' or 'pane'> "
   let vcount = exists('a:1') ? a:1 : exists('v:count') && v:count != 0 ? v:count : 'none'
   if a:specified_address == 'prompt'
     return input(prompt_string)
@@ -48,20 +48,20 @@ endfunction
 "function to return to last vim address, good for functions that need to be in
 "the pane to execute but return to original vim. See VimaxScrollUpInspect
 "and ...Down...
-function! vimax#util#return_to_last_vim_address()
-  let [ split_address, len_address ] =
-    \ vimax#util#address_split_length(g:VimaxLastVimAddress)
-  if len_address < 3
-    let [ window_address, pane_address ] = split_address
-  else
-    let [ session, window, pane_address ] = split_address
-    let window_address = session.':'.window
-  endif
-  call system('tmux select-window -t '
-    \ .window_address
-    \ .'; tmux select-pane -t '
-    \ .pane_address)
-endfunction
+"function! vimax#util#return_to_last_vim_address()
+  "let [ split_address, len_address ] =
+    "\ vimax#util#address_split_length(g:VimaxLastVimAddress)
+  "if len_address < 3
+    "let [ window_address, pane_address ] = split_address
+  "else
+    "let [ session, window, pane_address ] = split_address
+    "let window_address = session.':'.window
+  "endif
+  "call system('tmux select-window -t '
+    "\ .window_address
+    "\ .'; tmux select-pane -t '
+    "\ .pane_address)
+"endfunction
 
 "get an address from the format used in vimax#List
 function! vimax#util#get_address_from_list_item(item)

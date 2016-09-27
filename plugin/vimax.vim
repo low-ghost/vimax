@@ -4,23 +4,23 @@ endif
 
 let g:vimax_loaded = 1
 
-"fuzzy buffer preference. At the moment, fzf only supported. If none,
+"Fuzzy buffer preference. At the moment, fzf only supported. If none,
 "simple vim 'echo's are used
 if !exists('g:VimaxFuzzyBuffer')
   let g:VimaxFuzzyBuffer = 'fzf'
 endif
 
-"limit the size of shell history loaded into list
+"Limit the size of shell history loaded into list
 if !exists('g:VimaxLimitHistory')
   let g:VimaxLimitHistory = 1000
 endif
 
-"location of shell history file
+"Location of shell history file
 if !exists('g:VimaxHistoryFile')
   let g:VimaxHistoryFile = $HOME.'/.bash_history'
 endif
 
-"string presented when prompting for a command
+"String presented when prompting for a command
 if !exists('g:VimaxPromptString')
   let g:VimaxPromptString = 'Command? '
 endif
@@ -29,12 +29,12 @@ if !exists('g:VimaxSplitOrJoinLines')
   let g:VimaxSplitOrJoinLines = 'split'
 endif
 
-"sequence of keys sent to Tmux to exit copy-mode
+"Sequence of keys sent to Tmux to exit copy-mode
 if !exists('g:VimaxResetSequence')
   let g:VimaxResetSequence = 'q C-u'
 endif
 
-"command dictionary with Tmux addresses as keys, string commands as props
+"Command dictionary with Tmux addresses as keys, string commands as props
 if !exists('g:VimaxLastCommandDict')
   let g:VimaxLastCommandDict = {}
 endif
@@ -47,11 +47,14 @@ if !exists('g:VimaxHeight')
   let g:VimaxHeight = 10
 endif
 
+"Always escape these characters. Can be changed at runtime. For instance, to
+"always change 'ls; ls -a' to 'ls\; ls \-a' for whatever reason, type
+": let VimaxEscapeChars = ';-'
 if !exists('g:VimaxEscapeChars')
-  let g:VimaxEscapeChars = ';'
+  let g:VimaxEscapeChars = ''
 endif
 
-"single characters to bind ctrl-<char> to action
+"Single characters to bind ctrl-<char> to action
 "run_at_address and edit also have parallel alt bindings
 if !exists('g:VimaxHistoryBindings')
   let g:VimaxHistoryBindings = {}
@@ -64,7 +67,7 @@ let g:VimaxHistoryBindings = extend({
  \ 'help': 'h',
  \ }, copy(g:VimaxHistoryBindings))
 
-"single characters to bind ctrl-<char> to action
+"Single characters to bind ctrl-<char> to action
 if !exists('g:VimaxListBindings')
   let g:VimaxListBindings = {}
 endif
@@ -79,6 +82,7 @@ let g:VimaxListBindings = extend({
  \ 'last': 'l',
  \ }, copy(g:VimaxListBindings))
 
+"Fzf layout options
 if !exists('g:VimaxFzfLayout')
   let g:VimaxFzfLayout = exists('g:fzf_layout') ? g:fzf_layout : { 'down': '~40%' }
 endif
