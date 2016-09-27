@@ -11,10 +11,7 @@ function! vimax#RunCommand(command, ...)
     return 0
   endif
 
-  let l:auto_return = 1
-  if exists('a:2')
-    let l:auto_return = a:2
-  endif
+  let l:auto_return = exists('a:2') ? a:1 : 1
 
   "save to global last command, last address and a dict of key=last address
   "value=last command

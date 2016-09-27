@@ -152,3 +152,16 @@ if exists('g:VimaxDefaultMappings')
   nmap <leader>vx <Plug>VimaxInterruptAddress
   nmap <leader>vz <Plug>VimaxZoomAddress
 endif
+
+"Vimux plugin compatibility
+function! VimuxRunCommand(command, ...)
+  let address = vimax#util#get_address('none')
+  let l:auto_return = exists('a:1') ? a:1 : 1
+  vimax#RunCommand(a:command, address, l:auto_return)
+endfunction
+
+function! VimuxRunLastCommand()
+  let address = vimax#util#get_address('none')
+  let l:auto_return = exists('a:1') ? a:1 : 1
+  vimax#RunCommand(a:command, address, l:auto_return)
+endfunction
