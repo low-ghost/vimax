@@ -162,6 +162,15 @@ function! vimax#util#open_scratch()
   endif
 endfunction
 
+function! vimax#util#close_scratch()
+  let bnum = bufnr(g:VimaxScratchBufferName)
+  if bnum == -1
+    echo "No scratch open"
+  else
+    exe "bd " . bnum
+  endif
+endfunction
+
 function! s:set_buffer_local_opts()
   setlocal buftype=nofile
   setlocal bufhidden=hide

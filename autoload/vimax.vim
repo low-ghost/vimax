@@ -199,7 +199,7 @@ endfunction
 "open a tmux split in specified path, send a <command> and get the new
 "address via display-message so it can be set to g:VimaxLastAddress
 function! s:run_in_dir(path, command)
-  if strlen(command) < 1
+  if strlen(a:command) < 1
     return
   endif
   let g:VimaxLastAddress = system(

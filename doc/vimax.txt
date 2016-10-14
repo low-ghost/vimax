@@ -63,6 +63,8 @@ command that will be executed in pane 2 of the current window, and
 mapping:
 
   nmap <leader>va <Plug>VimaxList
+  nmap <leader>vbo <Plug>VimaxOpenScratch
+  nmap <leader>vbc <Plug>VimaxCloseScratch
   nmap <leader>vc <Plug>VimaxClearAddressHistory
   nmap <leader>vd <Plug>VimaxRunCommandInDir
   nmap <leader>vg <Plug>VimaxGoToAddress

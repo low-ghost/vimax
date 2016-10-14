@@ -110,6 +110,8 @@ nnoremap <silent> <Plug>VimaxMotion               :<C-U>call vimax#util#action_s
 xnoremap <silent> <Plug>VimaxMotion               :<C-U>call vimax#util#do_action(visualmode())<CR>
 nnoremap <silent> <Plug>VimaxMotionCurrentLine    :<C-U>call vimax#util#do_action('current_line')<CR>
 nnoremap <silent> <Plug>VimaxMotionSendLastRegion :<C-U>call vimax#util#MotionSendLastRegion()<CR>
+nnoremap <silent> <Plug>VimaxOpenScratch          :<C-U>call vimax#util#open_scratch()<CR>
+nnoremap <silent> <Plug>VimaxCloseScratch          :<C-U>call vimax#util#close_scratch()<CR>
 
 "commands which accept args
 command -nargs=* VimaxClearAddressHistory call vimax#ClearAddressHistory(<f-args>)
@@ -128,12 +130,15 @@ command -nargs=* VimaxScrollUpInspect     call vimax#ScrollUpInspect(<f-args>)
 command -nargs=* VimaxZoomAddress         call vimax#ZoomAddress(<f-args>)
 command -nargs=* VimaxExitInspect         call vimax#ExitInspect(<f-args>)
 command VimaxOpenScratch                  call vimax#util#open_scratch()
+command VimaxCloseScratch                 call vimax#util#close_scratch()
 command VimaxMotionSendLastRegion         call vimax#util#MotionSendLastRegion()
 command VimaxList                         call vimax#List()
 
 "default mappings
 if exists('g:VimaxDefaultMappings')
   nmap <leader>va <Plug>VimaxList
+  nmap <leader>vbo <Plug>VimaxOpenScratch
+  nmap <leader>vbc <Plug>VimaxCloseScratch
   nmap <leader>vc <Plug>VimaxClearAddressHistory
   nmap <leader>vd <Plug>VimaxRunCommandInDir
   nmap <leader>vg <Plug>VimaxGoToAddress
