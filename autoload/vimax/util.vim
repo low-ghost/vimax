@@ -42,9 +42,10 @@ endfunction
 
 "Escape and replace chars
 function! vimax#util#escape(str, ...)
-  let to_escape = exists('a:1') ? a:1.g:VimaxEscapeChars : g:VimaxEscapeChars
-  let final_str = escape(a:str, g:VimaxReplace)
-  for item in to_replace
+  "Append argument to existing escape chars, if provided
+  let to_escape = exists('a:1') ? a:1 . g:VimaxEscapeChars : g:VimaxEscapeChars
+  let final_str = escape(a:str, g:VimaxEscapeChars)
+  for item in g:VimaxReplace
     let final_str = substitute(final_str, item[0], item[1], "")
   endfor
   return final_str
