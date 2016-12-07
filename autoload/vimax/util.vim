@@ -40,9 +40,14 @@ function! vimax#util#get_address(specified_address, ...)
   endif
 endfunction
 
+"Escape and replace chars
 function! vimax#util#escape(str, ...)
   let to_escape = exists('a:1') ? a:1.g:VimaxEscapeChars : g:VimaxEscapeChars
-  return escape(a:str, to_escape)
+  let final_str = escape(a:str, g:VimaxReplace)
+  for item in to_replace
+    let final_str = substitute(final_str, item[0], item[1], "")
+  endfor
+  return final_str
 endfunction
 
 "function to return to last vim address, good for functions that need to be in

@@ -54,6 +54,14 @@ if !exists('g:VimaxEscapeChars')
   let g:VimaxEscapeChars = ''
 endif
 
+"Array of arrays containing [ pattern-to-find, replacement ]. For instance
+":let g:VimaxReplace = [ [ 'es.', 'hat' ] ];
+":VimaxPrompt test
+"will result in passing 'that' to the target rather than 'test'
+if !exists('g:VimaxReplace')
+  let g:VimaxReplace = []
+endif
+
 "Single characters to bind ctrl-<char> to action
 "run_at_address and edit also have parallel alt bindings
 if !exists('g:VimaxHistoryBindings')
