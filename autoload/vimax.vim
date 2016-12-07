@@ -199,15 +199,18 @@ endfunction
 "open a tmux split in specified path, send a <command> and get the new
 "address via display-message so it can be set to g:VimaxLastAddress
 function! s:run_in_dir(path, command)
-  if strlen(a:command) < 1
-    return
-  endif
+  let is_command = strlen(a:command) > 0
+  let send_instructions = is_command > 0 ? "\\\; send-keys \"".a:command."\" 'Enter'" : ''
   let g:VimaxLastAddress = system(
-    \ 'tmux split-window -'.g:VimaxOrientation.' -l '.g:VimaxHeight.' -c '.a:path.
-    \ "\\\; send-keys \"".a:command."\" 'Enter'".
-    \ "\\\; display-message -p '#S:#I.#P'"
+    \ 'tmux split-window -' . g:VimaxOrientation . ' -l ' . g:VimaxHeight . ' -c ' . a:path
+    \ . send_instructions
+    \ . "\\\; display-message -p '#S:#I.#P'"
     \ )
-  call system('tmux last-pane')
+  " Only go back to vim if a command is actually run, otherwise the assumption
+  " is the user wants to land in the new target to execute commands
+  if is_command
+    call system('tmux last-pane')
+  endif
 endfunction
 
 "open a new tmux split in current directory
