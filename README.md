@@ -222,12 +222,12 @@ environments make this dificult. Change to $HOME.'/.zsh_history' or $HOME.'./.zh
     <dd>vimax#RunCommandInDir creates a new pane in either a vertical or horizontal split, specified
       by setting g:VimaxOrientation to 'v' or 'h'</dd>
     <dt>default</dt>
-    <dd>'v'</dd>
+    <dd>'h'</dd>
   </dl></dd>
-  <dt>g:VimaxHeight</dt>
+  <dt>g:VimaxSize</dt>
   <dd><dl>
     <dt>description</dt>
-    <dd>height of vimax#RunCommandInDir pane in lines</dd>
+    <dd>size of vimax#RunCommandInDir pane in lines</dd>
     <dt>default</dt>
     <dd>10</dd>
   </dl></dd>

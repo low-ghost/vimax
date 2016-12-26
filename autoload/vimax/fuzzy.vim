@@ -31,15 +31,9 @@ for func in keys(g:VimaxHistoryBindings)
   endif
 endfor
 
-for func in keys(g:VimaxListBindings)
-  let bind = g:VimaxListBindings[func]
-  call add(s:all_list_bindings, vimax#fuzzy#get_binding(bind)[0])
-endfor
-
 function! vimax#fuzzy#get_all_bindings(group)
   return a:group == 'history' ? s:all_history_bindings : s:all_list_bindings
 endfunction
-
 
 "format history header
 function! vimax#fuzzy#history_header()

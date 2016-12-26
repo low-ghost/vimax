@@ -1,9 +1,61 @@
 "fzf variations of fuzzy search buffer functionality
 
+function! vimax#fzf#run(opts)
+  "opts { mode, source, sink, header, ?prompt, ?bindings }
+  let options_prompt = a:opts.mode . ' ' . get(a:opts, 'prompt', 'list')
+  let options_init = '+m --ansi --prompt=' . options_prompt . '> '
+  let bindings = has_key(a:opts, 'bindings') ? ' --expect=' . a:opts.bindings : ''
+  let header = '--header "' . a:opts.mode . a:opts.header . '"'
+  return fzf#run(extend({
+    \ 'source': a:opts.source,
+    \ 'sink*': function(a:opts.sink),
+    \ 'options': options_init . bindings . header . ' --tiebreak=index',
+    \ }, g:VimaxFzfLayout))
+endfunction
+
+function! s:create_ctrl_binding(key)
+  "returns pair of bindings, [ fzf ]
+  return 'ctrl-' . a:key
+endfunction
+
+function! s:create_alt_binding(key)
+  "returns alt bindings, [ fzf ]
+  return 'alt-' . a:key
+endfunction
+
+function! vimax#fzf#generate_binds(mode, kind)
+  "generates or retrieves from cache all bindings for a mode for all fzf kinds,
+  "but only returns the specified kind
+  let prefix = 'vimax#' . a:mode
+  let name = prefix . '#bindings'
+  let existing_binds = get(g:, name, v:null)
+  "cached
+  if !(existing_binds is v:null)
+    return existing_binds[a:kind]
+  endif
+
+  execute 'let g:' . name . ' = {}'
+  "we'll mutate this and in tern mutate g:<name>
+  let global_binds = get(g:, name)
+
+  for kind in ['list', 'history']
+    "get mode specific bindings if they exist at vimax#mode#list_bindings or
+    "get the global bindings defaulted in /plugin at vimax#list_bindings
+    let global_binds[kind] = {}
+    let bindings = get(g:, prefix . '#list_bindings', get(g:, 'vimax#list_bindings'))
+
+    for [key, value] in items(bindings)
+      let global_binds[kind][key] = s:create_ctrl_binding(value)
+    endfor
+  endfor
+
+  return global_binds[kind]
+endfunction
+
 function! vimax#fzf#list_sink(lines)
 
   if !len(a:lines)
-    return 'none'
+    return g:vimax#none
   endif
 
   let binds = g:VimaxListBindings
@@ -36,14 +88,14 @@ endfunction
 
 function! vimax#fzf#list_from_history_sink(lines)
   if !len(a:lines)
-    return 'none'
+    return g:vimax#none
   endif
 
   let [ picked; rest ] = a:lines
   let original_address = g:VimaxLastAddress
   let address = vimax#util#set_last_address(picked)
 
-  if address != 'none'
+  if address != g:vimax#none
     let lines = vimax#fuzzy#get_history_lines()
 
     if s:fzf_history_last_binding == 'change_target'
@@ -127,7 +179,7 @@ endfunction
 "and returns the key and selection after, thus necessitating
 "the recursive strategy
 function! vimax#fzf#history(address, lines)
-  let s:fzf_history_last_binding = 'none'
+  let s:fzf_history_last_binding = g:vimax#none
   let g:VimaxLastAddress = a:address
   return fzf#run(extend({
     \ 'source': reverse(a:lines),
