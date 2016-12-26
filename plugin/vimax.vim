@@ -52,7 +52,7 @@ let g:VimaxHistoryBindings = extend({
 
 "Single characters to bind ctrl-<char> to action
 let g:vimax#list_bindings = extend({
- \ 'help': 'h',
+ \ 'help': 'k',
  \ 'go_to': 'g',
  \ 'zoom': 'z',
  \ 'inspect': 'i',
@@ -89,7 +89,7 @@ augroup vimax#nvim
 augroup END
 
 function! s:pascal_case(text)
-  "str -> str
+  "type: (text: str) -> str
   "Converts snake case to pascal case
   return substitute(a:text, '\(\%(\<\l\+\)\%(_\)\@=\)\|_\(\l\)', '\u\1\2', 'g')
 endfunction
@@ -119,10 +119,11 @@ function! s:register_method(method, keybind)
       \ ' :<C-U>call ' . function_name . '(' . mode_arg . ')<CR>'
   endfor
   "if exists('g:VimaxDefaultMappings')
-    execute 'nmap ' g:vimax#leader . a:keybind . ' <Plug>Vimax#' . a:method
+    execute 'nmap <silent> ' g:vimax#leader . a:keybind . ' <Plug>Vimax#' . a:method
   "endif
 endfunction
 
+call s:register_method('list',             'a')
 call s:register_method('clear_history',    'c')
 call s:register_method('run_in_dir',       'd')
 call s:register_method('go_to',            'g')
@@ -140,7 +141,6 @@ call s:register_method('zoom',             'z')
 "one digit is pane only e.g. 1<mapping> is an action for pane 1
 "two digits is window, pane e.g. 12<mapping> is an action for window 1, pane 2
 nnoremap <unique> <Plug>VimaxHistory              :<C-U>call vimax#History()<CR>
-nnoremap <unique> <Plug>VimaxList                 :call vimax#List()<CR>
 "TODO not working if no count and no last
 nnoremap <silent> <Plug>VimaxMotion               :<C-U>call vimax#util#action_setup()<CR>g@
 xnoremap <silent> <Plug>VimaxMotion               :<C-U>call vimax#util#do_action(visualmode())<CR>
@@ -155,7 +155,6 @@ nnoremap <silent> <Plug>Vimax#switch_mode         :<C-U>call vimax#switch_mode()
 command -nargs=* VimaxHistory             call vimax#History(<f-args>)
 "command -nargs=* VimaxRunCommand          call vimax#RunCommand(<f-args>)
 command VimaxMotionSendLastRegion         call vimax#util#MotionSendLastRegion()
-command VimaxList                         call vimax#List()
 
 command VimaxOpenScratch                  call vimax#scratch#open_scratch()
 command VimaxCloseScratch                 call vimax#scratch#close_scratch()
@@ -163,7 +162,6 @@ command VimaxSwitchMode                   call vimax#switch_mode()
 
 "default mappings
 "if exists('g:VimaxDefaultMappings')
-  nmap <leader>va <Plug>VimaxList
   nmap <leader>vh <Plug>VimaxHistory
   nmap <leader>vs <Plug>VimaxMotion
   nmap <leader>vss <Plug>VimaxMotionCurrentLine

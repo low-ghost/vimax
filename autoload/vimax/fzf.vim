@@ -2,14 +2,17 @@
 
 function! vimax#fzf#run(opts)
   "opts { mode, source, sink, header, ?prompt, ?bindings }
-  let options_prompt = a:opts.mode . ' ' . get(a:opts, 'prompt', 'list')
-  let options_init = '+m --ansi --prompt=' . options_prompt . '> '
-  let bindings = has_key(a:opts, 'bindings') ? ' --expect=' . a:opts.bindings : ''
-  let header = '--header "' . a:opts.mode . a:opts.header . '"'
+  let capital_mode = vimax#util#capitalize(a:opts.mode)
+  let options_prompt = capital_mode . ' ' . get(a:opts, 'prompt', 'list')
+  let options_init = '+m --ansi --prompt="' . options_prompt . '> "'
+  let bindings = has_key(a:opts, 'bindings') ? ' --expect="' . a:opts.bindings . '"' : ''
+  let header = ' --header "' . capital_mode . ' '  . a:opts.header . '"'
+  let options = options_init . bindings . header . ' --tiebreak=index'
+
   return fzf#run(extend({
     \ 'source': a:opts.source,
     \ 'sink*': function(a:opts.sink),
-    \ 'options': options_init . bindings . header . ' --tiebreak=index',
+    \ 'options': options,
     \ }, g:VimaxFzfLayout))
 endfunction
 
@@ -123,7 +126,7 @@ endfunction
 
 "basically forces startinsert, which isn't working in a second fzf instance
 "for some reason or other
-function s:nvim_insert_fix()
+function! s:nvim_insert_fix()
   if has('nvim')
     call feedkeys('A', 'n')
   endif

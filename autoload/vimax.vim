@@ -117,7 +117,7 @@ function! vimax#close(mode, ...)
     \ 'name': 'close',
     \ 'needs_address': v:true,
     \ }
-  return call("s:call_mode_function", [opts])
+  return call("s:call_mode_function", [opts] + a:000)
 endfunction
 
 function! vimax#zoom(mode, ...)
@@ -237,6 +237,10 @@ function! vimax#run_at_git_root(mode, ...)
   endif
   let command = get(a:, '1', input(g:VimaxPromptString))
   return call("s:call_mode_function", [opts, path, command] + a:000)
+endfunction
+
+function! Echo(...)
+  echo a:000
 endfunction
 
 function! vimax#list(mode, ...)

@@ -2,6 +2,10 @@ function! vimax#util#is_non_empty_list(list)
   return type(a:list) == type([]) && !empty(a:list)
 endfunction
 
+function! vimax#util#capitalize(text)
+  return toupper(a:text[0]) . a:text[1:]
+endfunction
+
 "Escape and replace chars
 function! vimax#util#escape(str, ...)
   "Append argument to existing escape chars, if provided
@@ -14,7 +18,7 @@ function! vimax#util#escape(str, ...)
 endfunction
 
 "get an address from the format used in vimax#List
-function vimax#util#nvim_insert_fix()
+function! vimax#util#nvim_insert_fix()
   if has('nvim')
     call feedkeys('A', 'n')
   endif

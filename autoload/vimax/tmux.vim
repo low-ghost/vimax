@@ -34,33 +34,33 @@ function! vimax#tmux#send_text(address, text)
   call vimax#tmux#send_keys(a:address, escaped)
 endfunction
 
-function! vimax#tmux#send_return(address)
+function! vimax#tmux#send_return(address, ...)
   "send the return key to pain
   call vimax#tmux#send_keys(a:address, 'Enter')
 endfunction
 
-function! vimax#tmux#send_reset(address)
+function! vimax#tmux#send_reset(address, ...)
   "send the return key to pain
   call vimax#tmux#send_keys(a:address, '-X cancel')
 endfunction
 
-function! vimax#tmux#close(address)
+function! vimax#tmux#close(address, ...)
   "type: (address: str) -> void
   call system('tmux kill-pane -t ' . a:address)
 endfunction
 
-function! vimax#tmux#zoom(address)
+function! vimax#tmux#zoom(address, ...)
   "type: (address: str) -> void
   call vimax#tmux#go_to_address_additional(a:address, 'resize-pane -Z -t' . a:address)
 endfunction
 
-function! vimax#tmux#scroll_up(address)
+function! vimax#tmux#scroll_up(address, ...)
   "type: (address: str) -> void
   "TODO: goes too far?
   call system('tmux copy-mode -u -t ' . a:address)
 endfunction
 
-function! vimax#tmux#scroll_down(address)
+function! vimax#tmux#scroll_down(address, ...)
   "type: (address: str) -> void
   "Possibly this is a pre tmux 2.1 solution
   "call system('tmux copy-mode -t ' . a:address . '\; send-keys -t ' . a:address . ' C-d')
@@ -68,7 +68,7 @@ function! vimax#tmux#scroll_down(address)
               \ . ' -X -N 5 scroll-down')
 endfunction
 
-function! vimax#tmux#run_in_dir(path, command)
+function! vimax#tmux#run_in_dir(path, command, ...)
   "open a tmux split in specified path, send a <command> and get the new
   "address via display-message so it can be set to g:VimaxLastAddress
   let is_command = strlen(a:command) > 0
@@ -119,24 +119,24 @@ function! vimax#tmux#go_to_address_additional(address, ...)
   endif
 endfunction
 
-function! vimax#tmux#go_to(address)
+function! vimax#tmux#go_to(address, ...)
   call vimax#tmux#go_to_address_additional(a:address)
 endfunction
 
-function! vimax#tmux#inspect(address)
+function! vimax#tmux#inspect(address, ...)
   "type: (address: Address): void
   "enter window and pane in copy mode
   call vimax#tmux#go_to_address_additional(a:address, 'copy-mode')
 endfunction
 
-function! vimax#tmux#interrupt(address)
+function! vimax#tmux#interrupt(address, ...)
   "type: (address: Address): void
   "send standard console interrupt and tmux interrupt in that order so that
   "interrupt also works as 'exit inspect mode' in various tmux versions
   call vimax#tmux#send_keys(a:address, '^C', '-X cancel')
 endfunction
 
-function! vimax#tmux#clear_history(address)
+function! vimax#tmux#clear_history(address, ...)
   "type: (address: Address): void
   "clear tmux history and call 'clear' in term
   call system('tmux clear-history -t ' . a:address)
@@ -171,20 +171,20 @@ function! vimax#tmux#list_source(...)
     \ ), '\n'))
 endfunction
 
-function! s:list_switch(binds, key, picked)
+function! s:list_switch(binds, key)
   let switch = {
-    binds.help: 'help'
-    binds.go_to: "vimax#go_to",
-    binds.zoom: "vimax#zoom",
-    binds.inspect: "vimax#inspect",
-    binds.close: "vimax#close",
-    binds.prompt: "vimax#prompt_command",
-    binds.last: "vimax#run_last_command",
-  }
-  return get(switch, key, v:null)
+    \ a:binds.help: 'help',
+    \ a:binds.go_to: "vimax#go_to",
+    \ a:binds.zoom: "vimax#zoom",
+    \ a:binds.inspect: "vimax#inspect",
+    \ a:binds.close: "vimax#close",
+    \ a:binds.prompt: "vimax#prompt_command",
+    \ a:binds.last: "vimax#run_last_command",
+    \ }
+  return get(switch, a:key, v:null)
 endfunction
 
-function! vimax#tmux#list_sink(selections)
+function! vimax#tmux#list_sink(selections, ...)
   "type: (selections: List[str])
   if !len(a:selections)
     return v:null
@@ -193,7 +193,7 @@ function! vimax#tmux#list_sink(selections)
   let binds = vimax#fzf#generate_binds('tmux', 'list')
   let [ key, item; rest ] = a:selections
   let picked = s:get_address_from_fzf_item(item)
-  let func = s:list_switch(binds, key, picked)
+  let func = s:list_switch(binds, key)
   if func is v:null
     let g:vimax#tmux#last_address = picked
   elseif func == 'help' 
