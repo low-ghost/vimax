@@ -8,7 +8,7 @@ let g:vimax_nvim_last_command_dict = get(g:, 'vimax#nvim#last_command_dict', {})
 " {order_arg} str
 " returns {Tuple[int, int]}
 function! s:get_info_for_address(order_arg) abort
-  let l:buffer_num = get(keys(g:vimax#nvim#buffers), a:order_arg - 1)
+  let l:buffer_num = get(keys(g:vimax_nvim_buffers), a:order_arg - 1)
   let l:job_id = g:vimax_nvim_buffers[l:buffer_num]
   return [l:job_id, l:buffer_num]
 endfunction
@@ -126,8 +126,8 @@ function! vimax#nvim#run_command(command, ...)
   let send_direct_text = get(a:, '2')
   "save to global last command, last address and a dict of key=last address
   "value=last command
-  let g:vimax#nvim#last_address = address
-  let g:vimax#nvim#last_command_dict[address] = a:command
+  let g:vimax_nvim_last_address = address
+  let g:vimax_nvim_last_command_dict[address] = a:command
   call vimax#nvim#send_text(job_id, a:command)
   if !send_direct_text
     call vimax#nvim#send_keys(job_id, "\<cr>")
@@ -154,6 +154,6 @@ endfunction
 
 function! vimax#nvim#run_last_command(...)
    let address = vimax#nvim#get_info_from_args(a:000)[0]
-   let command = get(g:vimax#nvim#last_command, address, 'Up')
+   let command = get(g:vimax_nvim_last_command, address, 'Up')
    call call("vimax#nvim#run_command", [command] + a:000)
 endfunction
