@@ -1,195 +1,161 @@
 "fzf variations of fuzzy search buffer functionality
+"
+function! vimax#fzf#help(binds, title) abort
+  let l:header = a:title." Commands\n"
+  for [l:key, l:value] in items(a:binds)
+    let l:header .= "\n" . l:key . ' - ' . substitute(l:value, '_', ' ', 'g')
+  endfor
+  return l:header . "\n\nPress Enter to continue"
+endfunction
 
-function! vimax#fzf#run(opts)
+function! vimax#fzf#run(opts) abort
   "opts { mode, source, sink, header, ?prompt, ?bindings }
-  let capital_mode = vimax#util#capitalize(a:opts.mode)
-  let options_prompt = capital_mode . ' ' . get(a:opts, 'prompt', 'list')
-  let options_init = '+m --ansi --prompt="' . options_prompt . '> "'
-  let bindings = has_key(a:opts, 'bindings') ? ' --expect="' . a:opts.bindings . '"' : ''
-  let header = ' --header "' . capital_mode . ' '  . a:opts.header . '"'
-  let options = options_init . bindings . header . ' --tiebreak=index'
+  let l:capital_mode = vimax#util#capitalize(a:opts.mode)
+  let l:options_prompt = l:capital_mode . ' ' . get(a:opts, 'prompt', 'list')
+  let l:options_init = '+m --ansi --prompt="' . l:options_prompt . '> "'
+  let l:bindings = has_key(a:opts, 'bindings') ? ' --expect="' . a:opts.bindings . '"' : ''
+  let l:header = ' --header "' . l:capital_mode . ' '  . a:opts.header . '"'
+  let l:options = l:options_init . l:bindings . l:header . ' --tiebreak=index'
 
   return fzf#run(extend({
     \ 'source': a:opts.source,
-    \ 'sink*': function(a:opts.sink),
-    \ 'options': options,
-    \ }, g:VimaxFzfLayout))
+    \ 'sink*': a:opts.sink,
+    \ 'options': l:options,
+    \ }, g:vimax_fzf_layout))
 endfunction
 
-function! s:create_ctrl_binding(key)
-  "returns pair of bindings, [ fzf ]
-  return 'ctrl-' . a:key
+function! s:list_switch(binds, key) abort
+  let l:switch = {
+    \ a:binds.help: 'help',
+    \ a:binds.go_to: 'vimax#go_to',
+    \ a:binds.zoom: 'vimax#zoom',
+    \ a:binds.inspect: 'vimax#inspect',
+    \ a:binds.close: 'vimax#close',
+    \ a:binds.prompt: 'vimax#prompt_command',
+    \ a:binds.last: 'vimax#run_last_command',
+    \ }
+  return get(l:switch, a:key, v:null)
 endfunction
 
-function! s:create_alt_binding(key)
-  "returns alt bindings, [ fzf ]
-  return 'alt-' . a:key
-endfunction
-
-function! vimax#fzf#generate_binds(mode, kind)
-  "generates or retrieves from cache all bindings for a mode for all fzf kinds,
-  "but only returns the specified kind
-  let prefix = 'vimax#' . a:mode
-  let name = prefix . '#bindings'
-  let existing_binds = get(g:, name, v:null)
-  "cached
-  if !(existing_binds is v:null)
-    return existing_binds[a:kind]
+function! vimax#fzf#default_list_sink(mode, selections, ...) abort
+  "type: (selections: List[str])
+  if !len(a:selections)
+    return v:null
   endif
 
-  execute 'let g:' . name . ' = {}'
-  "we'll mutate this and in tern mutate g:<name>
-  let global_binds = get(g:, name)
-
-  for kind in ['list', 'history']
-    "get mode specific bindings if they exist at vimax#mode#list_bindings or
-    "get the global bindings defaulted in /plugin at vimax#list_bindings
-    let global_binds[kind] = {}
-    let bindings = get(g:, prefix . '#list_bindings', get(g:, 'vimax#list_bindings'))
-
-    for [key, value] in items(bindings)
-      let global_binds[kind][key] = s:create_ctrl_binding(value)
-    endfor
-  endfor
-
-  return global_binds[kind]
+  let l:binds = g:vimax_list_bindings
+  let [ l:key, l:item; l:rest ] = a:selections
+  let l:picked = call('vimax#' . a:mode . '#format_address_from_fzf_item', [l:item])
+  let l:func = s:list_switch(l:binds, l:key)
+  if l:func is v:null
+    call vimax#set_last_address(a:mode, l:picked)
+  elseif l:func ==# 'help' 
+    call input(vimax#fzf#help(l:binds, 'List'))
+    "restart list if was help command
+    "TODO: check functionality when coming from history and hitting help for list
+    "might need more args
+    call vimax#list(a:mode)
+    call vimax#fzf#nvim_insert_fix()
+  else
+    return call(l:func, [a:mode, l:picked])
+  endif
 endfunction
 
-function! vimax#fzf#list_sink(lines)
-
-  if !len(a:lines)
-    return g:vimax#none
+function! vimax#fzf#default_history_source(...) abort
+  let l:lines = system('tail -'  . g:vimax_limit_history . ' ' . g:vimax_history_file)
+  let l:reverse_split_lines = reverse(split(l:lines, '\n'))
+  if g:vimax_history_file =~? 'zsh'
+    return map(l:reverse_split_lines, "substitute(v:val, ': \\d*:\\d;', '', '')")
+  else
+    return l:reverse_split_lines
   endif
-
-  let binds = g:VimaxListBindings
-  let [ key, item; rest ] = a:lines
-  let picked = vimax#util#get_address_from_list_item(item)
-
-  "history?
-  if key == vimax#fuzzy#get_binding(binds.help)[0]
-    call input(vimax#fuzzy#help(binds, 'List')."\n\nPress Enter to continue")
-  elseif key == vimax#fuzzy#get_binding(binds.go_to)[0]
-    return vimax#GoToAddress(picked)
-  elseif key == vimax#fuzzy#get_binding(binds.zoom)[0]
-    return vimax#ZoomAddress(picked)
-  elseif key == vimax#fuzzy#get_binding(binds.inspect)[0]
-    return vimax#InspectAddress(picked)
-  elseif key == vimax#fuzzy#get_binding(binds.close)[0]
-    return vimax#CloseAddress(picked)
-  elseif key == vimax#fuzzy#get_binding(binds.prompt)[0]
-    return vimax#PromptCommand(picked)
-  elseif key == vimax#fuzzy#get_binding(binds.last)[0]
-    return vimax#RunLastCommand(picked)
-  endif
-
-  let g:VimaxLastAddress = picked
-  "restart list if was help command
-  call vimax#List()
-  return s:nvim_insert_fix()
-
 endfunction
 
-function! vimax#fzf#list_from_history_sink(lines)
-  if !len(a:lines)
-    return g:vimax#none
+function! vimax#fzf#list_from_history_sink(mode, extra, selections) abort
+  "type: (selections: List[str])
+  if !len(a:selections)
+    return v:null
   endif
 
-  let [ picked; rest ] = a:lines
-  let original_address = g:VimaxLastAddress
-  let address = vimax#util#set_last_address(picked)
+  let [ l:key, l:item; l:rest ] = a:selections
+  let l:picked = call('vimax#' . a:mode . '#format_address_from_fzf_item', [l:item])
 
-  if address != g:vimax#none
-    let lines = vimax#fuzzy#get_history_lines()
+  if !(l:picked is v:null)
 
-    if s:fzf_history_last_binding == 'change_target'
-      call vimax#fzf#history(address, lines)
-      return s:nvim_insert_fix()
+    call vimax#set_last_address(a:mode, l:picked)
+    if a:extra.binding ==# 'change_target'
+      call vimax#history(a:mode, l:picked)
+      return vimax#fzf#nvim_insert_fix()
+    else
+      call vimax#run_command(a:mode, a:extra.command, l:picked)
     endif
-
-    call vimax#RunCommand(s:fzf_history_last, address)
   endif
 
-  call vimax#fzf#history(original_address, lines)
-  return s:nvim_insert_fix()
-endfunction
-
-function! vimax#fzf#list(lines, header, sink)
-  return fzf#run(extend({
-    \ 'source': reverse(split(a:lines, '\n')),
-    \ 'sink*': function(a:sink),
-    \ 'options': '+m --ansi --prompt="Address> "'.
-      \ ' --expect='.join(vimax#fuzzy#get_all_bindings('list'), ',').
-      \ ' --header '.a:header.
-      \ ' --tiebreak=index',
-    \ }, g:VimaxFzfLayout))
+  call vimax#history(a:mode, a:extra.original_address)
+  return vimax#fzf#nvim_insert_fix()
 endfunction
 
 "basically forces startinsert, which isn't working in a second fzf instance
 "for some reason or other
-function! s:nvim_insert_fix()
+function! vimax#fzf#nvim_insert_fix() abort
   if has('nvim')
     call feedkeys('A', 'n')
   endif
 endfunction
 
 "fzf sink. handles keybindings
-function! vimax#fzf#history_sink(lines)
-  if len(a:lines) < 2
+function! vimax#fzf#default_history_sink(mode, address, selections, ...) abort
+  if !len(a:selections)
     return
   endif
 
-  let [ key, item; rest ] = a:lines
-  let binds = g:VimaxHistoryBindings
-  let address = g:VimaxLastAddress
+  let l:binds = g:vimax_history_bindings
+  let [ l:key, l:item; l:rest ] = a:selections
+  "TODO: get new address from sub commands (list etc)
 
-  if key == vimax#fuzzy#get_binding(binds.change_target)[0]
-    let s:fzf_history_last_binding = 'change_target'
-    call vimax#List('Change Target Address for History', 'vimax#fzf#list_from_history_sink')
-    return s:nvim_insert_fix()
+  if index(values(l:binds), l:key) >= 0
+    if l:key == l:binds.change_target
+      let l:extra = {
+        \ 'binding': 'change_target',
+        \ 'original_address': a:address,
+        \ 'command': l:item,
+        \ }
+      let l:Func = function('vimax#fzf#list_from_history_sink',
+                            \ [a:mode, l:extra])
+      call vimax#list(a:mode, 'Change Target Address for History', l:Func)
+      return vimax#fzf#nvim_insert_fix()
+    elseif l:key == l:binds.help
+      call input(vimax#fzf#help(l:binds, 'History'))
+    elseif l:key == l:binds.run_at_address
+      call vimax#run_command(a:mode, l:item, a:address)
+    elseif l:key == l:binds.alt_run_at_address
+      let l:extra = {
+        \ 'binding': 'run_at_address',
+        \ 'original_address': a:address,
+        \ 'command': l:item,
+        \ }
+      let l:Func = function('vimax#fzf#list_from_history_sink',
+                            \ [a:mode, l:extra])
+      call vimax#list(a:mode, 'Run at Address', l:Func)
+      return vimax#fzf#nvim_insert_fix()
+    elseif l:key == l:binds.edit
+      return vimax#scratch#append(l:item)
+    elseif l:key == l:binds.alt_edit
+      let l:extra = {
+        \ 'binding': 'edit',
+        \ 'original_address': a:address,
+        \ 'command': l:item,
+        \ }
+      let l:Func = function('vimax#fzf#list_from_history_sink',
+                            \ [a:mode, l:extra])
+      call vimax#list(a:mode, 'Run History Command at Address After Editing',
+                      \ l:Func)
+      return vimax#fzf#nvim_insert_fix()
+    endif
 
-  elseif key == vimax#fuzzy#get_binding(binds.help)[0]
-    call input(vimax#fuzzy#help(g:VimaxHistoryBindings, 'History')."\n\nPress Enter to continue")
-
-  elseif key == vimax#fuzzy#get_binding(binds.run_at_address)[0]
-    call vimax#RunCommand(item, address)
-
-  elseif key == vimax#fuzzy#get_alt_binding(binds.run_at_address)[0]
-    let s:fzf_history_last = item
-    call vimax#List('Run at Address', 'vimax#fzf#list_from_history_sink')
-    return s:nvim_insert_fix()
-
-  elseif key == vimax#fuzzy#get_binding(binds.edit)[0]
-    return vimax#util#append_to_scratch(item)
-
-  elseif key == vimax#fuzzy#get_alt_binding(binds.edit)[0]
-    let s:fzf_history_last = item
-    call vimax#List('Run History Command at Address After Editing', 'vimax#fzf#list_from_history_sink')
-    return s:nvim_insert_fix()
-
+    call vimax#history(a:mode, a:address)
+    call vimax#fzf#nvim_insert_fix()
+  elseif !empty(l:item)
+    return vimax#run_command(a:mode, l:item, a:address)
   endif
-
-  if index(vimax#fuzzy#get_all_bindings('history'), key) >= 0
-    let lines = vimax#fuzzy#get_history_lines()
-    call vimax#fzf#history(address, lines)
-    return s:nvim_insert_fix()
-  endif
-
-  return vimax#RunCommand(item, address)
-endfunction
-
-"main fzf history function. 
-"expects a single function, or sink, to handle key bindings
-"and returns the key and selection after, thus necessitating
-"the recursive strategy
-function! vimax#fzf#history(address, lines)
-  let s:fzf_history_last_binding = g:vimax#none
-  let g:VimaxLastAddress = a:address
-  return fzf#run(extend({
-    \ 'source': reverse(a:lines),
-    \ 'sink*': function('vimax#fzf#history_sink'),
-    \ 'options': '+m --ansi --prompt="Hist> "'.
-      \ ' --expect='.join(vimax#fuzzy#get_all_bindings('history'), ',').
-      \ ' --header "'.vimax#fuzzy#history_header().'"'.
-      \ ' --tiebreak=index',
-    \ }, g:VimaxFzfLayout))
 endfunction

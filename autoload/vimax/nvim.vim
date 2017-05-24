@@ -1,47 +1,62 @@
-let g:vimax#nvim#last_command_dict = get(g:, 'vimax#nvim#last_command_dict', {})
+let g:vimax_nvim_last_command_dict = get(g:, 'vimax#nvim#last_command_dict', {})
 
-function! vimax#nvim#run_in_dir(path, command)
-  "TODO: path
-  let name = a:command ? fnameescape(a:command) : 'new_terminal'
-  silent! execute 'sp ' . name
+""
+" Get job id and buffer num from an order argument, the count or argument
+" specifying nth nvim target
+"
+" @private
+" {order_arg} str
+" returns {Tuple[int, int]}
+function! s:get_info_for_address(order_arg) abort
+  let l:buffer_num = get(keys(g:vimax#nvim#buffers), a:order_arg - 1)
+  let l:job_id = g:vimax_nvim_buffers[l:buffer_num]
+  return [l:job_id, l:buffer_num]
+endfunction
+
+""
+" Get address from count
+"
+"@public
+"{count} int
+"returns {int} buffer
+function! vimax#nvim#format_address_from_vcount(count) abort
+  return s:get_info_for_address(a:count)[0]
+endfunction
+
+""
+" Get address from count
+"
+"@public
+"{arg} str
+"returns {int} buffer
+function! vimax#nvim#format_address_from_arg(arg) abort
+  return s:get_info_for_address(a:arg)[0]
+endfunction
+
+function! vimax#nvim#format_address_from_fzf_item(item) abort
+  "TODO
+  return string(a:item)
+endfunction
+
+function! vimax#nvim#send_keys(job_id, keys) abort
+  silent! call jobsend(a:job_id, a:keys)
+endfunction
+
+
+function! vimax#nvim#run_in_dir(path, command, ...) abort
+  "TODO: path and return address
+  let l:name = a:command ? fnameescape(a:command) : 'new_terminal'
+  let l:win_id = win_getid()
+  silent! execute 'sp ' . l:name
   silent! set ft=zsh
   silent! resize 10
-  let job_id = termopen('zsh')
+  let l:job_id = termopen('zsh')
   if !empty(a:command)
-    call vimax#nvim#send_keys(job_id, a:command . "\r")
-  endif
-  startinsert!
-endfunction
-
-function! vimax#nvim#get_address(specified_address, ...)
-  let prompt_string = "nvim address> "
-  let retrieved_arg = get(a:, '1')
-  if retrieved_arg && !(retrieved_arg is v:null)
-    let retrieved_count = retrieved_arg
-  elseif exists('v:count') && v:count != 0
-    let retrieved_count = v:count
+    call vimax#nvim#send_keys(l:job_id, a:command . "\r")
+    call win_gotoid(l:win_id)
   else
-    let retrieved_count = v:null
+    startinsert!
   endif
-  if vimax#util#is_non_empty_list(a:specified_address)
-    let [address] = a:specified_address
-    return address
-  elseif !(retrieved_count is v:null)
-    return retrieved_count
-  elseif exists('g:vimax#nvim#last_address')
-    "use last address as the default
-    return g:vimax#nvim#last_address
-  else
-    "if no specified, count or last address, prompt for input
-    return input(prompt_string)
-  endif
-endfunction
-
-function! vimax#nvim#get_info_from_args(args)
-  let address = vimax#nvim#get_address(a:args)
-  let buffer_num = get(keys(g:vimax#nvim#buffers), address - 1)
-  let job_id = g:vimax#nvim#buffers[buffer_num]
-  return [ address, buffer_num, job_id ]
 endfunction
 
 function! s:go_to(address_arg, cb, return)
@@ -89,10 +104,6 @@ endfunction
 function! vimax#nvim#scroll_down(...)
   let down = v:false
   call s:go_to(a:000, function('s:scroll_and_return', [ down ]), v:true)
-endfunction
-
-function! vimax#nvim#send_keys(job_id, keys)
-  silent! call jobsend(a:job_id, a:keys)
 endfunction
 
 function! vimax#nvim#send_text(job_id, text)

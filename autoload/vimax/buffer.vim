@@ -7,8 +7,8 @@ function! vimax#buffer#go_to(buffer_num)
     endif
   else
     "bring existing buffer into view
-    let direction_prefix = g:VimaxOrientation == 'v' ? 'v' : ''
-    execute 'botright ' . g:VimaxSize . direction_prefix . 'split +buffer' . a:buffer_num
+    let direction_prefix = g:vimax_orientation == 'v' ? 'v' : ''
+    execute 'botright ' . g:vimax_size . direction_prefix . 'split +buffer' . a:buffer_num
   endif
 endfunction
 

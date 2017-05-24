@@ -1,87 +1,397 @@
-*vimax.txt* An ax for maximum tmux and vim control... or something
- _          _        _         _   _         _           _      _      ~
-/\ \    _ / /\      /\ \      /\_\/\_\ _    / /\       /_/\    /\ \    ~
-\ \ \  /_/ / /      \ \ \    / / / / //\_\ / /  \      \ \ \   \ \_\   ~
- \ \ \ \___\/       /\ \_\  /\ \/ \ \/ / // / /\ \      \ \ \__/ / /   ~
- / / /  \ \ \      / /\/_/ /  \____\__/ // / /\ \ \      \ \__ \/_/    ~
- \ \ \   \_\ \    / / /   / /\/________// / /  \ \ \      \/_/\__/\    ~
-  \ \ \  / / /   / / /   / / /\/_// / // / /___/ /\ \      _/\/__\ \   ~
-   \ \ \/ / /   / / /   / / /    / / // / /_____/ /\ \    / _/_/\ \ \  ~
-    \ \ \/ /___/ / /__ / / /    / / // /_________/\ \ \  / / /   \ \ \ ~
-     \ \  //\__\/_/___\\/_/    / / // / /_       __\ \_\/ / /    /_/ / ~
-      \_\/ \/_________/        \/_/ \_\___\     /____/_/\/_/     \_\/  ~
-                                                                       ~
-========================================================================
-CONTENTS                                                 *VimaxContents*
-1. Introduction...................|Vimax-Introduction|
-2. Usage..........................|Vimax-Usage|
-  2.1 Mappings....................|Vimax-Mappings|
-  2.2 Commands....................|Vimax-Commands|
-  2.3 Functions...................|Vimax-Functions|
-  2.4 Interactive Buffers.........|Vimax-Interactive-Buffers|
-    2.4.1 History Buffer..........|Vimax-History|
-    2.5.2 List Buffer.............|Vimax-List|
-3. Installation...................|Vimax-Installation|
-4. Configuration.................|Vimax-Configuration|
-5. Tmux Configuration............|Vimax-Tmux-Configuration|
+*vimax.txt*
+                                                                       *vimax*
 
-========================================================================
-1. Introduction                                      *Vimax-Introduction*
+==============================================================================
+CONTENTS                                                      *vimax-contents*
+  1. Configuration..............................................|vimax-config|
+  2. Commands.................................................|vimax-commands|
+  3. Dictionaries................................................|vimax-dicts|
+  4. Functions...............................................|vimax-functions|
+  5. Mappings.................................................|vimax-mappings|
 
-This plugin is largely based on Vimux and is enhanced to allow a finer
-grain of control over sending commands and text to multiple tmux panes
-and windows. Primarily, all functions and commands now accept a count
-or argument to specify a target tmux pane, placing an entire tmux
-session (or sessions) at your fingertips. Vimax also provides a GUI for
-listing and executing historical commands and listing available panes
-to help navigate.
+==============================================================================
+CONFIGURATION                                                   *vimax-config*
 
-========================================================================
+                                                        *g:vimax_nvim_buffers*
+Dictionary of nvim buffers {[buffer_id: number]: number}, or buffer id to job
+id
 
-2. Usage                                                   *Vimax-Usage*
+                                             *g:vimax_nvim_scroll_up_sequence*
+Nvim scroll up sequence
 
-Vimax works by accepting an 'address' for functions which help to send
-commands to tmux. An address is a combination of session, window, and
-pane, all of which are optional. If no address is given, the last
-targeted address is used for that command, or, if no previous address
-is given, a prompt will ask for a specified pane. If just a pane is
-specified, then the current session and window are used, and so on.
-This will be clearer with the examples given below, but it essentially
-allows sending commands to tmux panes and windows with great ease.
+                                           *g:vimax_nvim_scroll_down_sequence*
+Nvim scroll down sequence
 
-2.1 Mappings                                            *Vimax-Mappings*
-------------
+                                                 *g:vimax_tmux_address_format*
+Tmux address format information for prompt
 
-Vimax provides easy mappings which accept up to three, one digit
-numbers to specify session, window and pane. For instance, lets say
-VimaxPromptCommand is mapped to `<leader>vp`. VimaxPromptCommand
-prompts for user input of any command and then executes it in the
-specified target address. Pressing `2<leader>vp` will ask for a
-command that will be executed in pane 2 of the current window, and
-`13 <leader>vp` will select session 1, window 3 and pane 2. Just
-`<leader vp` will use the last targeted address. Here is a full example
-mapping:
+                                                     *g:vimax_tmux_py_enabled*
+Neovim and python enabled for async execution
 
-  nmap <leader>va <Plug>VimaxList
-  nmap <leader>vbo <Plug>VimaxOpenScratch
-  nmap <leader>vbc <Plug>VimaxCloseScratch
-  nmap <leader>vc <Plug>VimaxClearAddressHistory
-  nmap <leader>vd <Plug>VimaxRunCommandInDir
-  nmap <leader>vg <Plug>VimaxGoToAddress
-  nmap <leader>vh <Plug>VimaxHistory
-  nmap <leader>vi <Plug>VimaxInspectAddress
-  nmap <leader>vj <Plug>VimaxScrollDownInspect
-  nmap <leader>vk <Plug>VimaxScrollUpInspect
-  nmap <leader>vl <Plug>VimaxRunLastCommand
-  nmap <leader>v<CR> <Plug>VimaxExitInspect
-  nmap <leader>vp <Plug>VimaxPromptCommand
-  nmap <leader>vq <Plug>VimaxCloseAddress
-  nmap <leader>vr <Plug>VimaxRunCommandAtGitRoot
-  nmap <leader>vss <Plug>VimaxMotionCurrentLine
-  nmap <leader>vs <Plug>VimaxMotion
-  vmap <leader>vs <Plug>VimaxMotion
-  nmap <leader>vx <Plug>VimaxInterruptAddress
-  nmap <leader>vz <Plug>VimaxZoomAddress
+                                                              *g:vimax_leader*
+Vimax leader sequence applied if g:vimax_default_mappings is set to 1. E.g.
+adding this to a .vimrc or init.vim:
+>
+  let g:vimax_default_mappings = 1
+<
+without setting g:vimax_leader will mean <leader>vp will trigger Vimax#prompt
+[vimax_leader] is '<leader>v' if omitted.
 
-The `<leader>va` might be a bit of a stretch for VimaxList, with 'a'
-for addresses
+                                                        *g:vimax_fuzzy_buffer*
+Fuzzy buffer preference. At the moment, fzf only supported. If set to v:null,
+simple vim echo's are used
+[vimax_fuzzy_buffer] is 'fzf' if omitted.
+
+                                                       *g:vimax_limit_history*
+Limit the size of shell history loaded into list
+[vimax_limit_history] is 5000 if omitted.
+
+                                                        *g:vimax_history_file*
+Location of shell history file
+[vimax_history_file] is $HOME . '/.bash_history' if omitted.
+
+                                                       *g:vimax_prompt_string*
+String presented when prompting for a command
+[vimax_prompt_string] is 'Command? ' if omitted.
+
+                                                 *g:vimax_split_or_join_lines*
+Split or join lines when sending them to address
+[vimax_split_or_join_lines] is 'split' if omitted.
+
+                                                   *g:vimax_last_command_dict*
+Command dictionary with Tmux addresses as keys, string commands as props
+[vimax_last_command_dict] is {} if omitted.
+
+                                                         *g:vimax_orientation*
+Orientation preference for new targets. Horizontal by default. 'h' or 'v'
+[vimax_orientation] is 'h' if omitted.
+
+                                                                *g:vimax_size*
+Size preference for new targets. Defaults to 10, which will likely be too
+small if choosing
+>
+  let g:vimax_orientation='v'
+<
+[vimax_size] is 10 if omitted.
+
+                                                             *g:vimax_replace*
+Array of arrays containing [ pattern-to-find, replacement ]. For instance
+>
+  :let g:VimaxReplace = [ [ 'es.', 'hat' ] ];
+  :VimaxPrompt test
+<
+will result in passing 'that' to the target rather than 'test'
+[vimax_replace] is [] if omitted.
+
+                                                    *g:vimax_history_bindings*
+Single characters to bind ctrl-<char> to action run_at_address and edit also
+have parallel alt bindings
+[vimax_history_bindings] is |vimax.VimaxHistoryBindings| if omitted.
+
+                                                       *g:vimax_list_bindings*
+Single characters to bind ctrl-<char> to action
+[vimax_list_bindings] is |vimax.VimaxListBindings| if omitted.
+
+                                                          *g:vimax_fzf_layout*
+Fzf layout options
+[vimax_fzf_layout] is g:fzf_layout || {'down': '~40%'} if omitted.
+
+                                                           *g:vimax_all_modes*
+TODO: extension
+
+                                                                *g:vimax_mode*
+Currently active vimax mode, dictating how all functions are handled. Built in
+modes are 'tmux' and 'nvim', but more modes may be added via plugins
+[vimax_mode] is 'tmux' if omitted.
+
+                                                        *g:vimax_last_address*
+Dictionary containing {[mode: str]: str}, or one address per used mode
+[vimax_last_address] is {} if omitted.
+
+                                                   *g:vimax_last_command_dict*
+Dictionary containing {[mode: str]: {[address: any]: str}, or an address to
+last command sub dictionary per mode
+[vimax_last_command_dict] is {} if omitted.
+
+==============================================================================
+COMMANDS                                                      *vimax-commands*
+
+:VimaxList                                                        *:VimaxList*
+  Get a list of all available targets. Provides interactivity via fuzzy buffer
+  and key bindings to for actions like 'go to'. See |vimax.VimaxListBindings|
+  Uses current |g:vimax_mode|.
+
+:Vimax<capitalized |g:vimax_mode|>List
+  Call mode specific variant of List command, e.g. VimaxTmuxList
+
+:VimaxOpenScratch                                          *:VimaxOpenScratch*
+  Open scratch buffer. Nothing fancy, just a non-persisted buffer for quickly
+  editing commands
+
+:VimaxCloseScratch                                        *:VimaxCloseScratch*
+  Close scratch buffer. Can close via simple :bd or :q, but a command/binding
+  might be fun
+
+:VimaxClearHistory                                        *:VimaxClearHistory*
+  Uses current |g:vimax_mode|
+
+:Vimax<capitalized |g:vimax_mode|>ClearHistory
+  Call mode specific variant of ClearHistory command, e.g.
+  VimaxTmuxClearHistory
+
+:VimaxRunInDir                                                *:VimaxRunInDir*
+  Uses current |g:vimax_mode|
+
+:Vimax<capitalized |g:vimax_mode|>RunInDir
+  Call mode specific variant of RunInDir command, e.g. VimaxTmuxRunInDir
+
+:VimaxGoTo                                                        *:VimaxGoTo*
+  Uses current |g:vimax_mode|
+
+:Vimax<capitalized |g:vimax_mode|>GoTo
+  Call mode specific variant of GoTo command, e.g. VimaxTmuxGoTo
+
+:VimaxHistory                                                  *:VimaxHistory*
+  Uses current |g:vimax_mode|
+
+:Vimax<capitalized |g:vimax_mode|>History
+  Call mode specific variant of History command, e.g. VimaxTmuxHistory
+
+:VimaxInspect                                                  *:VimaxInspect*
+  Uses current |g:vimax_mode|
+
+:Vimax<capitalized |g:vimax_mode|>Inspect
+  Call mode specific variant of Inspect command, e.g. VimaxTmuxInspect
+
+:VimaxScrollDown                                            *:VimaxScrollDown*
+  Uses current |g:vimax_mode|
+
+:Vimax<capitalized |g:vimax_mode|>ScrollDown
+  Call mode specific variant of ScrollDown command, e.g. VimaxTmuxScrollDown
+
+:VimaxScrollUp                                                *:VimaxScrollUp*
+  Uses current |g:vimax_mode|
+
+:Vimax<capitalized |g:vimax_mode|>ScrollUp
+  Call mode specific variant of ScrollUp command, e.g. VimaxTmuxScrollUp
+
+:VimaxRunLastCommand                                    *:VimaxRunLastCommand*
+  Uses current |g:vimax_mode|
+
+:Vimax<capitalized |g:vimax_mode|>RunLastCommand
+  Call mode specific variant of RunLastCommand command, e.g.
+  VimaxTmuxRunLastCommand
+
+:VimaxPromptCommand                                      *:VimaxPromptCommand*
+  Uses current |g:vimax_mode|
+
+:Vimax<capitalized |g:vimax_mode|>PromptCommand
+  Call mode specific variant of PromptCommand command, e.g.
+  VimaxTmuxPromptCommand
+
+:VimaxClose                                                      *:VimaxClose*
+  Uses current |g:vimax_mode|
+
+:Vimax<capitalized |g:vimax_mode|>Close
+  Call mode specific variant of Close command, e.g. VimaxTmuxClose
+
+:VimaxRunAtGitRoot                                        *:VimaxRunAtGitRoot*
+  Uses current |g:vimax_mode|
+
+:Vimax<capitalized |g:vimax_mode|>RunAtGitRoot
+  Call mode specific variant of RunAtGitRoot command, e.g.
+  VimaxTmuxRunAtGitRoot
+
+:VimaxSendLastRegion                                    *:VimaxSendLastRegion*
+  Uses current |g:vimax_mode|
+
+:Vimax<capitalized |g:vimax_mode|>SendLastRegion
+  Call mode specific variant of SendLastRegion command, e.g.
+  VimaxTmuxSendLastRegion
+
+:VimaxSendCurrentLine                                  *:VimaxSendCurrentLine*
+  Uses current |g:vimax_mode|
+
+:Vimax<capitalized |g:vimax_mode|>SendCurrentLine
+  Call mode specific variant of SendCurrentLine command, e.g.
+  VimaxTmuxSendCurrentLine
+
+:VimaxAlternateMode                                      *:VimaxAlternateMode*
+  Switch mode via incrementing g:vimax_all_modes
+
+:VimaxInterrupt                                              *:VimaxInterrupt*
+  Uses current |g:vimax_mode|
+
+:Vimax<capitalized |g:vimax_mode|>Interrupt
+  Call mode specific variant of Interrupt command, e.g. VimaxTmuxInterrupt
+
+  Send an interrupt sequence to target (possibly with exit-inspect sequence)
+
+:VimaxZoom                                                        *:VimaxZoom*
+  Uses current |g:vimax_mode|
+
+:Vimax<capitalized |g:vimax_mode|>Zoom
+  Call mode specific variant of Zoom command, e.g. VimaxTmuxZoom
+
+  Toggle zoom for target and go to that target
+
+==============================================================================
+DICTIONARIES                                                     *vimax-dicts*
+
+                                                  *vimax.VimaxHistoryBindings*
+  * change_target 'ctrl-t'
+  * run_at_address 'ctrl-r'
+  * alt_run_at_address 'alt-r'
+  * edit 'ctrl-e'
+  * alt_edit 'alt-e'
+  * help 'alt-h'
+
+                                                     *vimax.VimaxListBindings*
+  * help 'alt-h'
+  * go_to 'ctrl-g'
+  * zoom 'ctrl-z'
+  * inspect 'ctrl-i'
+  * close 'ctrl-q'
+  * prompt 'ctrl-p'
+  * last 'ctrl-l'
+
+==============================================================================
+FUNCTIONS                                                    *vimax-functions*
+
+vimax#get_last_address({mode})                      *vimax#get_last_address()*
+  Gets the last address from |g:vimax_last_address| for the given mode
+
+  {mode} str property of |g:vimax_mode|
+
+vimax#set_last_address({mode}, {address})           *vimax#set_last_address()*
+  Sets global last address for mode on g:vimax_last_address[mode] to a
+  formatted address
+
+  {mode} str from |g:vimax_all_modes| {address} str already formatted and
+  ready for consumption
+
+vimax#nvim#format_address_from_vcount({count}, {int})
+                                     *vimax#nvim#format_address_from_vcount()*
+  Get address from count
+
+  {count} int returns {int} buffer
+
+vimax#nvim#format_address_from_arg({arg}, {int})
+                                        *vimax#nvim#format_address_from_arg()*
+  Get address from count
+
+  {arg} str returns {int} buffer
+
+vimax#util#is_non_empty_list({list})          *vimax#util#is_non_empty_list()*
+  Check if argument is a non-empty list.
+
+  {list} List returns bool
+
+vimax#util#capitalize({text})                        *vimax#util#capitalize()*
+  Capitalize first letter of a word.
+
+  {text} str returns str
+
+vimax#util#pascal_case({text})                      *vimax#util#pascal_case()*
+  Converts snake case to pascal case.
+
+  {text} str returns str
+
+vimax#util#escape({str}, [additional_escape], [additional_replace])
+                                                         *vimax#util#escape()*
+  Escape and replace chars via |g:vimax_escape_chars| and |g:vimax_replace|.
+  Accepts 2 additional args to add to escape and replace, respectfully.
+
+  {str} str [additional_escape] str [additional_replace] str
+
+vimax#util#warn({msg})                                     *vimax#util#warn()*
+  Echo with warning
+
+  {msg} str returns str
+
+vimax#util#to_str({val})                                 *vimax#util#to_str()*
+  Safe to string function
+
+  {val} any returns str
+
+==============================================================================
+MAPPINGS                                                      *vimax-mappings*
+
+All mappings accept a count to specify a target to act upon. Each mode will
+have a different strategy for using count as a target. If in tmux mode, one
+digit is pane only e.g. 1<mapping> is an action for pane 1 two digits is
+window, pane e.g. 12<mapping> is an action for window 1, pane 2 and a 3rd
+digit represents session. In nvim mode, count maps directly to the numerical
+index of nvim terminals.
+
+------------------------------------------------------------------------------
+| Mode | Def. Map | Plug                       | Command                     |
+|------|----------|----------------------------|-----------------------------|
+| n    | <v-l>t   | Vimax#list                 | VimaxList                   |
+| n    |          | Vimax#<mode>#list          | Vimax<Mode>List             |
+|------|----------|----------------------------|-----------------------------|
+| n    | <v-l>bo  | Vimax#scratch#open         | VimaxOpenScratch            |
+|------|----------|----------------------------|-----------------------------|
+| n    | <v-l>bc  | Vimax#scratch#close        | VimaxCloseScratch           |
+|------|----------|----------------------------|-----------------------------|
+| n    | <v-l>c   | Vimax#clear_history        | VimaxClearHistory           |
+| n    |          | Vimax#<mode>#clear_history | Vimax<Mode>ClearHistory     |
+|------|----------|----------------------------|-----------------------------|
+| n    | <v-l>d   | Vimax#run_in_dir           | VimaxRunInDir               |
+| n    |          | Vimax#<mode>#run_in_dir    | Vimax<Mode>RunInDir         |
+|------|----------|----------------------------|-----------------------------|
+| n    | <v-l>g   | Vimax#go_to                | VimaxGoTo                   |
+| n    |          | Vimax#<mode>#go_to         | Vimax<Mode>GoTo             |
+|------|----------|----------------------------|-----------------------------|
+| n    | <v-l>h   | Vimax#history              | VimaxHistory                |
+| n    |          | Vimax#<mode>#history       | Vimax<Mode>History          |
+|------|----------|----------------------------|-----------------------------|
+| n    | <v-l>i   | Vimax#inspect              | VimaxInspect                |
+| n    |          | Vimax#<mode>#inspect       | Vimax<Mode>Inspect          |
+|------|----------|----------------------------|-----------------------------|
+| n    | <v-l>j   | Vimax#scroll_down          | VimaxScrollDown             |
+| n    |          | Vimax#<mode>#scroll_down   | Vimax<Mode>ScrollDown       |
+|------|----------|----------------------------|-----------------------------|
+| n    | <v-l>k   | Vimax#scroll_up            | VimaxScrollUp               |
+| n    |          | Vimax#<mode>#scroll_up     | Vimax<Mode>ScrollUp         |
+|------|----------|----------------------------|-----------------------------|
+| n    | <v-l>l   | Vimax#run_last_command     | VimaxRunLastCommand         |
+| n    |          | Vimax#<mode>               | Vimax<Mode>RunLastCommand   |
+|      |          |      #run_last_command     |                             |
+|------|----------|----------------------------|-----------------------------|
+| n    | <v-l>d   | Vimax#prompt_command       | VimaxPromptCommand          |
+| n    |          | Vimax#<mode>               | Vimax<Mode>PromptCommand    |
+|      |          |      #prompt_command       |                             |
+|------|----------|----------------------------|-----------------------------|
+| n    | <v-l>q   | Vimax#close                | VimaxClose                  |
+| n    |          | Vimax#<mode>#close         | Vimax<Mode>Close            |
+|------|----------|----------------------------|-----------------------------|
+| n    | <v-l>r   | Vimax#run_at_git_root      | VimaxRunAtGitRoot           |
+| n    |          | Vimax#<mode>               | Vimax<Mode>RunAtGitRoot     |
+|      |          |      #run_at_git_root      |                             |
+|------|----------|----------------------------|-----------------------------|
+| n    | <v-l>s   | Vimax#motion               |                             |
+| n    |          | Vimax#<mode>#motion        |                             |
+|------|----------|----------------------------|-----------------------------|
+| x    | <v-l>s   | Vimax#motion               |                             |
+| x    |          | Vimax#<mode>#motion        |                             |
+|------|----------|----------------------------|-----------------------------|
+| n    | <v-l>ss  | Vimax#motion#current_line  | VimaxSendCurrentLine        |
+| n    |          | Vimax#<mode>#motion        | Vimax<Mode>SendCurrentLine  |
+|      |          |      #current_line         |                             |
+|------|----------|----------------------------|-----------------------------|
+| n    | <v-l>s.  | Vimax#motion#last_region   | VimaxSendLastRegion         |
+| n    |          | Vimax#<mode>#motion        | Vimax<Mode>SendLastRegion   |
+|      |          |      #last_region          |                             |
+|------|----------|----------------------------|-----------------------------|
+| n    | <v-l>a   | Vimax#alternate_mode       | VimaxAlternateMode          |
+|------|----------|----------------------------|-----------------------------|
+| n    | <v-l>x   | Vimax#interrupt            | VimaxInterrupt              |
+| n    |          | Vimax#<mode>#interrupt     | Vimax<Mode>Interrupt        |
+|------|----------|----------------------------|-----------------------------|
+| n    | <v-l>z   | Vimax#zoom                 | VimaxZoom                   |
+| n    |          | Vimax#<mode>#zoom          | Vimax<Mode>Zoom             |
+------------------------------------------------------------------------------
+
+
+vim:tw=78:ts=8:ft=help:norl:

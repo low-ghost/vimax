@@ -1,94 +1,78 @@
-function! vimax#util#is_non_empty_list(list)
+""
+" Check if argument is a non-empty list.
+"
+" @public
+" {list} List
+" returns bool
+function! vimax#util#is_non_empty_list(list) abort
   return type(a:list) == type([]) && !empty(a:list)
 endfunction
 
-function! vimax#util#capitalize(text)
+""
+" Capitalize first letter of a word.
+"
+" @public
+" {text} str
+" returns str
+function! vimax#util#capitalize(text) abort
   return toupper(a:text[0]) . a:text[1:]
 endfunction
 
-"Escape and replace chars
-function! vimax#util#escape(str, ...)
+""
+" Converts snake case to pascal case.
+"
+" @public
+" {text} str
+" returns str
+function! vimax#util#pascal_case(text) abort
+  return join(map(split(a:text, '_'), 'vimax#util#capitalize(v:val)'), '')
+endfunction
+
+""
+" Escape and replace chars via @setting(vimax_escape_chars) and
+" @setting(vimax_replace). Accepts 2 additional args to add to escape and
+" replace, respectfully.
+"
+" @public
+" {str} str
+" [additional_escape] str
+" [additional_replace] str
+function! vimax#util#escape(str, ...) abort
   "Append argument to existing escape chars, if provided
-  let to_escape = a:0 > 0 ? a:1 . g:VimaxEscapeChars : g:VimaxEscapeChars
-  let final_str = escape(a:str, g:VimaxEscapeChars)
-  for item in g:VimaxReplace
-    let final_str = substitute(final_str, item[0], item[1], "")
+  let l:additional_escape = get(a:, '1', v:null)
+  let l:additional_replace = get(a:, '2', v:null)
+  let l:to_escape = l:additional_escape is v:null
+    \ ? g:vimax_escape_chars
+    \ : l:additional_escape . g:vimax_escape_chars
+  let l:to_replace = l:additional_replace is v:null
+    \ ? g:vimax_replace_chars
+    \ : l:additional_replace . g:vimax_replace
+
+  let l:final_str = escape(a:str, g:vimax_escape_chars)
+  for l:item in g:vimax_replace
+    let l:final_str = substitute(l:final_str, l:item[0], l:item[1], '')
   endfor
-  return final_str
+  return l:final_str
 endfunction
 
-"get an address from the format used in vimax#List
-function! vimax#util#nvim_insert_fix()
-  if has('nvim')
-    call feedkeys('A', 'n')
-  endif
+""
+" Echo with warning
+"
+" @public
+" {msg} str
+" returns str
+function! vimax#util#warn(msg) abort
+  echohl WarningMsg
+  echo '[vimax] ' . a:msg
+  echohl None
 endfunction
 
-"set VimaxLastAddress if the selection is not empty
-function! vimax#util#set_last_address(picked)
-  if !empty(a:picked)
-    let g:VimaxLastAddress = vimax#util#get_address_from_list_item(a:picked)
-    return g:VimaxLastAddress
-  else
-    return g:vimax#none
-  endif
-endfunction
-
-" Adapted tpope's unimpaired.vim
-function! vimax#util#do_action(type)
-  let vcount = v:count
-  let sel_save = &selection
-  let cb_save = &clipboard
-  set selection=inclusive clipboard-=unnamed clipboard-=unnamedplus
-  let reg_save = @@
-
-  if a:type == 'current_line'
-    silent exe 'normal! V$y'
-  elseif a:type =~ '^.$'
-    silent exe "normal! `<" . a:type . "`>y"
-  elseif a:type == 'line'
-    silent exe "normal! '[V']y"
-  elseif a:type == 'block'
-    silent exe "normal! `[\<C-V>`]y"
-  else
-    silent exe "normal! `[v`]y"
-  endif
-
-  if exists('s:vimax_motion_address') && s:vimax_motion_address != g:vimax#none
-    let address = s:vimax_motion_address
-    let s:vimax_motion_address = g:vimax#none
-  else
-    let address = vimax#util#get_address(g:vimax#none, vcount)
-  endif
-  let g:VimaxLastAddress = address
-
-  if (g:VimaxSplitOrJoinLines == 'split')
-    call vimax#SendLines(@@, address)
-  else
-    call vimax#SendText(substitute(@@, "\n", "", "g"), address)
-    call vimax#SendKeys('Enter', address)
-  endif
-  let s:last_range_type = a:type
-  "TODO
-  "silent! call repeat#set("\<Plug>Vimax...")
-
-  let @@ = reg_save
-  let &selection = sel_save
-  let &clipboard = cb_save
-endfunction
-
-function! vimax#util#action_setup()
-  "just added
-  if exists('v:count') && v:count != 0
-    let s:vimax_motion_address = s:get_address_from_vcount(v:count)
-  endif
-  setlocal opfunc=vimax#util#do_action
-endfunction
-
-function! vimax#util#MotionSendLastRegion()
-  if !exists('s:last_range_type')
-    echo 'no last vimax region to perform'
-    return
-  endif
-  return vimax#util#do_action(s:last_range_type)
+""
+" Safe to string function
+"
+" @public
+" {val} any
+" returns str
+function! vimax#util#to_str(val) abort
+  return type(a:val) == type('') ? a:val : string(a:val)
 endfunction
