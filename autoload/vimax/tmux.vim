@@ -43,12 +43,12 @@ function! vimax#tmux#send_text(address, text) abort
 endfunction
 
 function! vimax#tmux#send_return(address, ...) abort
-  "send the return key to pain
+  "send the return key to pane
   call vimax#tmux#send_keys(a:address, 'Enter')
 endfunction
 
 function! vimax#tmux#send_reset(address, ...) abort
-  "send the return key to pain
+  "send reset to pane
   call vimax#tmux#send_keys(a:address, '-X cancel')
 endfunction
 

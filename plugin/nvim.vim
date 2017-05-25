@@ -4,9 +4,11 @@ endif
 let g:vimax_nvim_tmux_loaded = 1
 
 ""
-" Dictionary of nvim buffers {[buffer_id: number]: number}, or buffer id to
-" job id
-let g:vimax_nvim_buffers = {}
+" Dictionary of nvim buffers {
+"   buffer: {[buffer_id: number]: number},
+"   job: {[job_id]: number]: number},
+" }
+let g:vimax_nvim_buffers = { 'buffer': {}, 'job': {} }
 
 ""
 " Nvim scroll up sequence

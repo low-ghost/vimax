@@ -1,1 +1,3 @@
 rplugin/**/__pycache__/
+scratch/
+**/.mypy_cache

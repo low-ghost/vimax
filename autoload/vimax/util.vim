@@ -45,7 +45,7 @@ function! vimax#util#escape(str, ...) abort
     \ ? g:vimax_escape_chars
     \ : l:additional_escape . g:vimax_escape_chars
   let l:to_replace = l:additional_replace is v:null
-    \ ? g:vimax_replace_chars
+    \ ? g:vimax_replace
     \ : l:additional_replace . g:vimax_replace
 
   let l:final_str = escape(a:str, g:vimax_escape_chars)
