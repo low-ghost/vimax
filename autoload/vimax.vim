@@ -30,9 +30,10 @@ function! vimax#set_last_command(mode, address, command) abort
   let g:vimax_last_command_dict[l:mode_final][a:address] = a:command
 endfunction
 
-function! vimax#get_last_command(mode, address, default) abort
+function! vimax#get_last_command(mode, address) abort
   let l:mode_final = !(a:mode is v:null) ? a:mode : g:vimax_mode
-  return get(g:vimax_last_command_dict[l:mode_final], a:address, a:default)
+  let l:default = get(g:vimax_get_last_command_default, l:mode_final, "")
+  return get(g:vimax_last_command_dict[l:mode_final], a:address, l:default)
 endfunction
 
 ""
@@ -161,7 +162,7 @@ endfunction
 function! vimax#run_last_command(mode, ...) abort
   "type (command: str, address: Optional[str]) -> void
   let l:address = call('vimax#get_address', [a:mode] + a:000)
-  let l:command = vimax#get_last_command(a:mode, l:address, 'Up')
+  let l:command = vimax#get_last_command(a:mode, l:address)
   return vimax#run_command(a:mode, l:command, l:address)
 endfunction
 

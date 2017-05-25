@@ -1,7 +1,7 @@
-if exists('g:vimax_nvim_tmux_loaded') || &compatible
+if exists('g:vimax_nvim_loaded') || &compatible
   finish
 endif
-let g:vimax_nvim_tmux_loaded = 1
+let g:vimax_nvim_loaded = 1
 
 ""
 " Dictionary of nvim buffers {
@@ -19,6 +19,9 @@ let g:vimax_nvim_scroll_up_sequence = "\<C-u>"
 let g:vimax_nvim_scroll_down_sequence = "\<C-d>"
 
 let g:vimax_all_modes = get(g:, 'vimax_all_modes', []) + ['nvim']
+let g:vimax_nvim_get_last_command_default = get(g:, 'vimax_nvim_get_last_command_default', "!!\t")
+let g:vimax_get_last_command_default = extend(get(g:, 'vimax_get_last_command_default', {}),
+  \ { 'nvim': g:vimax_nvim_get_last_command_default })
 
 ""
 " Adds to and removes from g:vimax#nvim#buffers on any terminal open or close
