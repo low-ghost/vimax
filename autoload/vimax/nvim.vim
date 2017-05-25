@@ -67,7 +67,6 @@ function! vimax#nvim#send_text(job_id, text) abort
 endfunction
 
 function! vimax#nvim#send_return(job_id, ...) abort
-  "TODO: maybe
   call vimax#nvim#send_keys(a:job_id, "\<cr>")
 endfunction
 
@@ -81,7 +80,9 @@ function! vimax#nvim#zoom(job_id, ...) abort
 endfunction
 
 function! s:scroll(up) abort
-  let l:sequence = a:up is v:true ? "\<C-u>" : "\<C-d>"
+  let l:sequence = a:up is v:true
+    \ ? g:vimax_nvim_scroll_up_sequence
+    \ : g:vimax_nvim_scroll_down_sequence
   execute 'normal! ' . l:sequence
 endfunction
 
