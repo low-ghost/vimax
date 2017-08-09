@@ -34,7 +34,9 @@ function! vimax#motion#do_action(type, ...) abort
 
   let l:address = call('vimax#get_address', [l:mode, v:null, l:count])
   call vimax#set_last_address(l:mode, l:address)
-
+  call call('vimax#call_mode_function', [{'mode': l:mode,
+                                        \ 'name': 'send_reset'},
+                                        \ l:address])
   "TODO
   if (g:vimax_split_or_join_lines == 'split-it')
     call vimax#SendLines(@@, l:address)

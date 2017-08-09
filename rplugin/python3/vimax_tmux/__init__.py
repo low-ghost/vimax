@@ -32,7 +32,9 @@ def send_text(address, text):
 
 
 def send_reset(address):
-    return send_keys(address, '-X cancel')
+    return send_keys(address, 'C-c')
+    # Presumably for a different version
+    # return send_keys(address, '-X cancel')
 
 
 def copy_mode(address):
