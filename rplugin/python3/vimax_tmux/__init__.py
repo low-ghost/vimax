@@ -142,7 +142,7 @@ class Vimax(object):
         len_count = len(count_str)
         if len_count < 3:
             return '.'.join(count_str)
-        formatted_add = '{add[2]}:{add[1]}.{add[0]}'.format(add=count_str)
+        formatted_add = '{add[0]}:{add[1]}.{add[2]}'.format(add=count_str)
         return formatted_add
 
     @neovim.function('_vimax_tmux_format_address_from_arg', sync=True)
