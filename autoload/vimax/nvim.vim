@@ -125,7 +125,7 @@ function! vimax#nvim#inspect(job_id, ...) abort
   return s:go_to(a:job_id, v:null, v:null)
 endfunction
 
-function! vimax#nvim#interrupt(job_ib, ...) abort
+function! vimax#nvim#interrupt(job_id, ...) abort
   return vimax#nvim#send_keys(a:job_id, "\<C-c>")
 endfunction
 
@@ -134,4 +134,8 @@ function! vimax#nvim#send_command(job_id, command, send_direct_text) abort
   if !a:send_direct_text
     call vimax#nvim#send_return(a:job_id)
   endif
+endfunction
+
+function! vimax#nvim#list_source(...) abort
+  call input('list_source')
 endfunction

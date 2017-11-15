@@ -137,16 +137,13 @@ function! vimax#run_command(mode, command, ...) abort
     return v:null
   endif
 
-  "TODO: reinstate for 'prompt'?
-  let l:send_direct_text = get(a:, '2')
-
   "save to global last command, last address and a dict of key=last address
   "execute let_prefix . 'command = ' . a:command 
   call vimax#set_last_command(a:mode, l:address, a:command)
 
   call call('vimax#call_mode_function',
             \ [{'mode': a:mode, 'name': 'send_command'}, l:address, a:command,
-            \ l:send_direct_text])
+            \ g:vimax_send_direct_text])
   silent! call repeat#set('\<Plug>Vimax#run_last_command')
 endfunction
 

@@ -278,3 +278,12 @@ to enable. All examples will assume this configuration.
 - [x] potential: additional bindings for list and history.
 - [ ] Tmux specific actions like rename window, bring pane into current window, break from current window, close pane (with prompt)
 - [ ] Multiline historical entries
+- [ ] Nvim send at root doesn't change directories
+- [x] Nvim send interrupt fails with
+    Error detected while processing function vimax#interrupt[8]..vimax#call_mode_function[24]..vimax#nvim#interrupt:
+    line    1:
+    E121: Undefined variable: a:job_id
+    E116: Invalid arguments for function vimax#nvim#send_keys(a:job_id, "\<C-c>")
+    E15: Invalid expression: vimax#nvim#send_keys(a:job_id, "\<C-c>")
+- [ ] History run in directory options
+- [ ] Nvim list source

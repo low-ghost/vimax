@@ -149,6 +149,8 @@ let g:vimax_last_address = get(g:, 'vimax_last_address', {})
 " @default vimax_last_command_dict={}
 let g:vimax_last_command_dict = get(g:, 'vimax_last_command_dict', {})
 
+let g:vimax_send_direct_text = get(g:, 'vimax_send_direct_text', v:false)
+
 function s:build_mode_vars()
   for l:mode in g:vimax_all_modes
     let g:vimax_last_command_dict[l:mode] = {}

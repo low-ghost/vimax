@@ -1,9 +1,5 @@
 import neovim
 import re
-import socket
-import os
-import sys
-from threading import Thread
 from subprocess import run, PIPE
 from shlex import quote
 from .tmux_cmd import TmuxCmd
@@ -88,52 +84,11 @@ def scroll_up(vim, address):
     vim.eval('vimax#scroll_up("tmux", {})'.format(address))
 
 
-funs = {
-    'scroll_up': scroll_up,
-}
-
-
-def client_thread(conn, client, vim):
-    while True:
-        msg = conn.recv(2048)
-        if msg:
-            decoded = msg.decode('utf-8').strip()
-            if decoded == 'exit':
-                client.close()
-                sys.exit('closing vimax')
-            elif decoded in funs:
-                vim.async_call(funs[decoded], vim, 2)
-
-
-def connect(socket_path):
-    client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    connection_result = client.connect_ex(socket_path)
-    return client, connection_result
-
-
-def client_start(vim):
-    socket_path = '/tmp/vimax-tmux.sock'
-    client, connection_result = connect(socket_path)
-    # connect to the unix local socket with a stream type
-    if connection_result != 0:
-        try:
-            os.remove(socket_path)
-        except OSError:
-            pass
-        client.bind(socket_path)
-        client.listen(5)
-        while True:
-            conn, addr = client.accept()
-            Thread(target=client_thread, args=(conn, client, vim)).start()
-    client.close()
-
-
 @neovim.plugin
 class Vimax(object):
 
     def __init__(self, vim):
         self.vim = vim
-        Thread(target=client_start, args=(self.vim)).start()
 
     @neovim.function('_vimax_tmux_format_address_from_vcount', sync=True)
     def _vimax_tmux_format_address_from_vcount(self, args):
@@ -247,13 +202,3 @@ class Vimax(object):
         if command:
             TmuxCmd('last-pane').run()
         return address
-
-    @neovim.function('_vimax_tmux_exit', sync=True)
-    def _vimax_tmux_exit(self, args):
-        socket_path = '/tmp/vimax-tmux.sock'
-        client, connection_result = connect(socket_path)
-        # TODO: not working
-        client.send(b'exit')
-        client.close()
-        sys.exit('closing vimax')
-        return 'exiting'
