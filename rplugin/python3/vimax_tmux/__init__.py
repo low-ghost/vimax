@@ -27,12 +27,6 @@ def send_text(address, text):
     return send_keys(address, quote(text))
 
 
-def send_reset(address):
-    return send_keys(address, 'C-c')
-    # Presumably for a different version
-    # return send_keys(address, '-X cancel')
-
-
 def copy_mode(address):
     return TmuxCmd('copy-mode -t {}'.format(address))
 
@@ -46,6 +40,10 @@ def scroll(address, direction):
 
 def send_return(address):
     return send_keys(address, 'Enter')
+
+
+def send_reset(address):
+    return send_keys(address, 'q C-u')
 
 
 def go_to_address_additional(address, add=''):
@@ -198,7 +196,7 @@ class Vimax(object):
         address = run_in_dir(path, command, orientation, size)
         # Call vimax#set_last_address for tmux to preserve async yet correctly
         # 'return' the new address
-        self.vim.eval("vimax#set_last_address('tmux', '{}')".format(address))
+        self.vim.eval("vimax#set_last_address('{}')".format(address))
         if command:
             TmuxCmd('last-pane').run()
         return address

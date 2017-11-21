@@ -49,8 +49,7 @@ endfunction
 
 function! vimax#tmux#send_reset(address, ...) abort
   "send reset to pane
-  "call vimax#tmux#send_keys(a:address, '-X cancel')
-  call vimax#tmux#send_keys(a:address, 'C-c')
+  call vimax#tmux#send_keys(a:address, 'q C-u')
 endfunction
 
 function! vimax#tmux#send_command(address, command, send_direct_text) abort
