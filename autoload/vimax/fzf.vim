@@ -10,7 +10,7 @@ endfunction
 
 function! vimax#fzf#run(opts) abort
   "opts { mode, source, sink, header, ?prompt, ?bindings }
-  let l:capital_mode = vimax#util#capitalize(a:opts.mode)
+  let l:capital_mode = vimax#util#capitalize(g:vimax_mode)
   let l:options_prompt = l:capital_mode . ' ' . get(a:opts, 'prompt', 'list')
   let l:options_init = '+m --ansi --prompt="' . l:options_prompt . '> "'
   let l:bindings = has_key(a:opts, 'bindings') ? ' --expect="' . a:opts.bindings . '"' : ''
@@ -37,7 +37,7 @@ function! s:list_switch(binds, key) abort
   return get(l:switch, a:key, v:null)
 endfunction
 
-function! vimax#fzf#default_list_sink(mode, selections, ...) abort
+function! vimax#fzf#default_list_sink(selections, ...) abort
   "type: (selections: List[str])
   if !len(a:selections)
     return v:null
@@ -45,19 +45,19 @@ function! vimax#fzf#default_list_sink(mode, selections, ...) abort
 
   let l:binds = g:vimax_list_bindings
   let [ l:key, l:item; l:rest ] = a:selections
-  let l:picked = call('vimax#' . a:mode . '#format_address_from_fzf_item', [l:item])
+  let l:picked = call('vimax#' . g:vimax_mode . '#format_address_from_fzf_item', [l:item])
   let l:func = s:list_switch(l:binds, l:key)
   if l:func is v:null
-    call vimax#set_last_address(a:mode, l:picked)
+    call vimax#set_last_address(l:picked)
   elseif l:func ==# 'help' 
     call input(vimax#fzf#help(l:binds, 'List'))
     "restart list if was help command
     "TODO: check functionality when coming from history and hitting help for list
     "might need more args
-    call vimax#list(a:mode)
+    call vimax#list()
     call vimax#fzf#nvim_insert_fix()
   else
-    return call(l:func, [a:mode, l:picked])
+    return call(l:func, [l:picked])
   endif
 endfunction
 
@@ -71,27 +71,27 @@ function! vimax#fzf#default_history_source(...) abort
   endif
 endfunction
 
-function! vimax#fzf#list_from_history_sink(mode, extra, selections) abort
+function! vimax#fzf#list_from_history_sink(extra, selections) abort
   "type: (selections: List[str])
   if !len(a:selections)
     return v:null
   endif
 
   let [ l:key, l:item; l:rest ] = a:selections
-  let l:picked = call('vimax#' . a:mode . '#format_address_from_fzf_item', [l:item])
+  let l:picked = call('vimax#' . g:vimax_mode . '#format_address_from_fzf_item', [l:item])
 
   if !(l:picked is v:null)
 
-    call vimax#set_last_address(a:mode, l:picked)
+    call vimax#set_last_address(l:picked)
     if a:extra.binding ==# 'change_target'
-      call vimax#history(a:mode, l:picked)
+      call vimax#history(l:picked)
       return vimax#fzf#nvim_insert_fix()
     else
-      call vimax#run_command(a:mode, a:extra.command, l:picked)
+      call vimax#run_command(a:extra.command, l:picked)
     endif
   endif
 
-  call vimax#history(a:mode, a:extra.original_address)
+  call vimax#history(a:extra.original_address)
   return vimax#fzf#nvim_insert_fix()
 endfunction
 
@@ -104,7 +104,7 @@ function! vimax#fzf#nvim_insert_fix() abort
 endfunction
 
 "fzf sink. handles keybindings
-function! vimax#fzf#default_history_sink(mode, address, selections, ...) abort
+function! vimax#fzf#default_history_sink(address, selections, ...) abort
   if !len(a:selections)
     return
   endif
@@ -120,23 +120,21 @@ function! vimax#fzf#default_history_sink(mode, address, selections, ...) abort
         \ 'original_address': a:address,
         \ 'command': l:item,
         \ }
-      let l:Func = function('vimax#fzf#list_from_history_sink',
-                            \ [a:mode, l:extra])
-      call vimax#list(a:mode, 'Change Target Address for History', l:Func)
+      let l:Func = function('vimax#fzf#list_from_history_sink', [l:extra])
+      call vimax#list('Change Target Address for History', l:Func)
       return vimax#fzf#nvim_insert_fix()
     elseif l:key == l:binds.help
       call input(vimax#fzf#help(l:binds, 'History'))
     elseif l:key == l:binds.run_at_address
-      call vimax#run_command(a:mode, l:item, a:address)
+      call vimax#run_command(l:item, a:address)
     elseif l:key == l:binds.alt_run_at_address
       let l:extra = {
         \ 'binding': 'run_at_address',
         \ 'original_address': a:address,
         \ 'command': l:item,
         \ }
-      let l:Func = function('vimax#fzf#list_from_history_sink',
-                            \ [a:mode, l:extra])
-      call vimax#list(a:mode, 'Run at Address', l:Func)
+      let l:Func = function('vimax#fzf#list_from_history_sink', [l:extra])
+      call vimax#list('Run at Address', l:Func)
       return vimax#fzf#nvim_insert_fix()
     elseif l:key == l:binds.edit
       return vimax#scratch#append(l:item)
@@ -146,16 +144,14 @@ function! vimax#fzf#default_history_sink(mode, address, selections, ...) abort
         \ 'original_address': a:address,
         \ 'command': l:item,
         \ }
-      let l:Func = function('vimax#fzf#list_from_history_sink',
-                            \ [a:mode, l:extra])
-      call vimax#list(a:mode, 'Run History Command at Address After Editing',
-                      \ l:Func)
+      let l:Func = function('vimax#fzf#list_from_history_sink', [l:extra])
+      call vimax#list('Run History Command at Address After Editing', l:Func)
       return vimax#fzf#nvim_insert_fix()
     endif
 
-    call vimax#history(a:mode, a:address)
+    call vimax#history(a:address)
     call vimax#fzf#nvim_insert_fix()
   elseif !empty(l:item)
-    return vimax#run_command(a:mode, l:item, a:address)
+    return vimax#run_command(l:item, a:address)
   endif
 endfunction

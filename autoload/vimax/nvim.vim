@@ -10,7 +10,7 @@ function! s:go_to(job_id, cb, return)
   let l:to_return = !(a:return is v:null)
 
   if l:to_return
-    let l:previous_location = [ winnr(), bufnr('%') ]
+    let l:previous_location = [winnr(), bufnr('%')]
   endif
 
   if !(l:buffer_num is v:null)

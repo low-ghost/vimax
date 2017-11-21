@@ -21,8 +21,8 @@ let g:vimax_fuzzy_buffer = get(g:, 'vimax_fuzzy_buffer', 'fzf')
 
 ""
 " Limit the size of shell history loaded into list
-" @default vimax_limit_history=5000
-let g:vimax_limit_history = get(g:, 'vimax_limit_history', 5000)
+" @default vimax_limit_history=10000
+let g:vimax_limit_history = get(g:, 'vimax_limit_history', 10000)
 
 ""
 " Location of shell history file
@@ -179,7 +179,7 @@ call s:build_mode_vars()
 " @command <>
 " @command Vimax<capitalized |g:vimax_mode|>List
 " Call mode specific variant of List command, e.g. VimaxTmuxList
-command -nargs=* VimaxList call vimax#list(v:null, <f-args>)
+command -nargs=* VimaxList call vimax#list(<f-args>)
 call vimax#init#register_method('list', 't')
 ""
 " @backmatter mappings
@@ -218,7 +218,7 @@ endif
 " @command <>
 " @command Vimax<capitalized |g:vimax_mode|>ClearHistory
 " Call mode specific variant of ClearHistory command, e.g. VimaxTmuxClearHistory
-command -nargs=* VimaxClearHistory call vimax#clear_history(v:null, <f-args>)
+command -nargs=* VimaxClearHistory call vimax#clear_history(<f-args>)
 call vimax#init#register_method('clear_history', 'c')
 ""
 " @backmatter mappings
@@ -232,7 +232,7 @@ call vimax#init#register_method('clear_history', 'c')
 " @command <>
 " @command Vimax<capitalized |g:vimax_mode|>RunInDir
 " Call mode specific variant of RunInDir command, e.g. VimaxTmuxRunInDir
-command -nargs=* VimaxRunInDir call vimax#run_in_dir(v:null, <f-args>)
+command -nargs=* VimaxRunInDir call vimax#run_in_dir(<f-args>)
 call vimax#init#register_method('run_in_dir', 'd')
 ""
 " @backmatter mappings
@@ -245,7 +245,7 @@ call vimax#init#register_method('run_in_dir', 'd')
 " @command <>
 " @command Vimax<capitalized |g:vimax_mode|>GoTo
 " Call mode specific variant of GoTo command, e.g. VimaxTmuxGoTo
-command -nargs=* VimaxGoTo call vimax#go_to(v:null, <f-args>)
+command -nargs=* VimaxGoTo call vimax#go_to(<f-args>)
 call vimax#init#register_method('go_to', 'g')
 ""
 " @backmatter mappings
@@ -258,7 +258,7 @@ call vimax#init#register_method('go_to', 'g')
 " @command <>
 " @command Vimax<capitalized |g:vimax_mode|>History
 " Call mode specific variant of History command, e.g. VimaxTmuxHistory
-command -nargs=* VimaxHistory call vimax#history(v:null, <f-args>)
+command -nargs=* VimaxHistory call vimax#history(<f-args>)
 call vimax#init#register_method('history', 'h')
 ""
 " @backmatter mappings
@@ -271,7 +271,7 @@ call vimax#init#register_method('history', 'h')
 " @command <>
 " @command Vimax<capitalized |g:vimax_mode|>Inspect
 " Call mode specific variant of Inspect command, e.g. VimaxTmuxInspect
-command -nargs=* VimaxInspect call vimax#inspect(v:null, <f-args>)
+command -nargs=* VimaxInspect call vimax#inspect(<f-args>)
 call vimax#init#register_method('inspect', 'i')
 ""
 " @backmatter mappings
@@ -284,7 +284,7 @@ call vimax#init#register_method('inspect', 'i')
 " @command <>
 " @command Vimax<capitalized |g:vimax_mode|>ScrollDown
 " Call mode specific variant of ScrollDown command, e.g. VimaxTmuxScrollDown
-command -nargs=* VimaxScrollDown call vimax#scroll_down(v:null, <f-args>)
+command -nargs=* VimaxScrollDown call vimax#scroll_down(<f-args>)
 call vimax#init#register_method('scroll_down', 'j')
 ""
 " @backmatter mappings
@@ -297,7 +297,7 @@ call vimax#init#register_method('scroll_down', 'j')
 " @command <>
 " @command Vimax<capitalized |g:vimax_mode|>ScrollUp
 " Call mode specific variant of ScrollUp command, e.g. VimaxTmuxScrollUp
-command -nargs=* VimaxScrollUp call vimax#scroll_up(v:null, <f-args>)
+command -nargs=* VimaxScrollUp call vimax#scroll_up(<f-args>)
 call vimax#init#register_method('scroll_up', 'k')
 ""
 " @backmatter mappings
@@ -312,7 +312,7 @@ call vimax#init#register_method('scroll_up', 'k')
 " Call mode specific variant of RunLastCommand command,
 " e.g. VimaxTmuxRunLastCommand
 command -nargs=* VimaxRunLastCommand call
-  \ vimax#run_last_command(v:null, <f-args>)
+  \ vimax#run_last_command(<f-args>)
 call vimax#init#register_method('run_last_command', 'l')
 ""
 " @backmatter mappings
@@ -327,7 +327,7 @@ call vimax#init#register_method('run_last_command', 'l')
 " @command Vimax<capitalized |g:vimax_mode|>PromptCommand
 " Call mode specific variant of PromptCommand command,
 " e.g. VimaxTmuxPromptCommand
-command -nargs=* VimaxPromptCommand call vimax#prompt_command(v:null, <f-args>)
+command -nargs=* VimaxPromptCommand call vimax#prompt_command(<f-args>)
 call vimax#init#register_method('prompt_command', 'p')
 ""
 " @backmatter mappings
@@ -341,7 +341,7 @@ call vimax#init#register_method('prompt_command', 'p')
 " @command <>
 " @command Vimax<capitalized |g:vimax_mode|>Close
 " Call mode specific variant of Close command, e.g. VimaxTmuxClose
-command -nargs=* VimaxClose call vimax#close(v:null, <f-args>)
+command -nargs=* VimaxClose call vimax#close(<f-args>)
 call vimax#init#register_method('close', 'q')
 ""
 " @backmatter mappings
@@ -354,7 +354,7 @@ call vimax#init#register_method('close', 'q')
 " @command <>
 " @command Vimax<capitalized |g:vimax_mode|>SendReturn
 " Call mode specific variant of Close command, e.g. VimaxTmuxClose
-command -nargs=* VimaxSendReturn call vimax#send_return(v:null, <f-args>)
+command -nargs=* VimaxSendReturn call vimax#send_return(<f-args>)
 call vimax#init#register_method('send_return', '<CR>')
 ""
 " @backmatter mappings
@@ -367,7 +367,7 @@ call vimax#init#register_method('send_return', '<CR>')
 " @command <>
 " @command Vimax<capitalized |g:vimax_mode|>RunAtGitRoot
 " Call mode specific variant of RunAtGitRoot command, e.g. VimaxTmuxRunAtGitRoot
-command -nargs=* VimaxRunAtGitRoot call vimax#run_at_git_root(v:null, <f-args>)
+command -nargs=* VimaxRunAtGitRoot call vimax#run_at_git_root(<f-args>)
 call vimax#init#register_method('run_at_git_root', 'r')
 ""
 " @backmatter mappings
@@ -382,7 +382,7 @@ call vimax#init#register_method('run_at_git_root', 'r')
 " @command Vimax<capitalized |g:vimax_mode|>SendLastRegion
 " Call mode specific variant of SendLastRegion command,
 " e.g. VimaxTmuxSendLastRegion
-command VimaxSendLastRegion call vimax#motion#send_last_region(v:null)
+command VimaxSendLastRegion call vimax#motion#send_last_region()
 
 ""
 " Uses current @setting(g:vimax_mode)
@@ -390,7 +390,7 @@ command VimaxSendLastRegion call vimax#motion#send_last_region(v:null)
 " @command Vimax<capitalized |g:vimax_mode|>SendCurrentLine
 " Call mode specific variant of SendCurrentLine command,
 " e.g. VimaxTmuxSendCurrentLine
-command VimaxSendCurrentLine call vimax#motion#do_action('current_line', v:null)
+command VimaxSendCurrentLine call vimax#motion#do_action('current_line')
 
 ""
 " The Vimax#motion plugs are defined in autoload/init.vim
@@ -406,18 +406,12 @@ endif
 " @backmatter mappings
 " |------|----------|----------------------------|-----------------------------|
 " | n    | <v-l>s   | Vimax#motion               |                             |
-" | n    |          | Vimax#<mode>#motion        |                             |
 " |------|----------|----------------------------|-----------------------------|
 " | x    | <v-l>s   | Vimax#motion               |                             |
-" | x    |          | Vimax#<mode>#motion        |                             |
 " |------|----------|----------------------------|-----------------------------|
 " | n    | <v-l>ss  | Vimax#motion#current_line  | VimaxSendCurrentLine        |
-" | n    |          | Vimax#<mode>#motion        | Vimax<Mode>SendCurrentLine  |
-" |      |          |      #current_line         |                             |
 " |------|----------|----------------------------|-----------------------------|
 " | n    | <v-l>s.  | Vimax#motion#last_region   | VimaxSendLastRegion         |
-" | n    |          | Vimax#<mode>#motion        | Vimax<Mode>SendLastRegion   |
-" |      |          |      #last_region          |                             |
 
 ""
 " Switch mode via incrementing g:vimax_all_modes
@@ -438,7 +432,7 @@ endif
 " Call mode specific variant of Interrupt command, e.g. VimaxTmuxInterrupt
 "
 " Send an interrupt sequence to target (possibly with exit-inspect sequence)
-command -nargs=* VimaxInterrupt call vimax#interrupt(v:null, <f-args>)
+command -nargs=* VimaxInterrupt call vimax#interrupt(<f-args>)
 call vimax#init#register_method('interrupt', 'x')
 ""
 " @backmatter mappings
@@ -453,7 +447,7 @@ call vimax#init#register_method('interrupt', 'x')
 " Call mode specific variant of Zoom command, e.g. VimaxTmuxZoom
 "
 " Toggle zoom for target and go to that target
-command -nargs=* VimaxZoom call vimax#zoom(v:null, <f-args>)
+command -nargs=* VimaxZoom call vimax#zoom(<f-args>)
 call vimax#init#register_method('zoom', 'z')
 ""
 " @backmatter mappings

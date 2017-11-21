@@ -30,4 +30,3 @@ augroup vimax#nvim
   au TermOpen * call vimax#nvim#au#add_to_buffer_list()
   au TermClose * call vimax#nvim#au#remove_from_buffer_list()
 augroup END
-
