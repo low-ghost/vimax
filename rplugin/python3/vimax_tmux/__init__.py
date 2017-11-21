@@ -52,7 +52,7 @@ def go_to_address_additional(address, add=''):
         + ' > ~/.vimaxenv', shell=True)
     first_split = str(address).split('.')
     address_parts = (first_split if len(first_split) == 1
-                     else first_split[1].split(':') + [first_split[0]])[::-1]
+                     else first_split[0].split(':') + [first_split[1]])[::-1]
     len_address = len(address_parts)
     pane_add = TmuxCmd('select-pane -t {}'.format(address)).chain(add)
     # "Go to a different window
