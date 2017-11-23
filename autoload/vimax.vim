@@ -24,12 +24,28 @@ function! vimax#set_last_address(mode, address) abort
   let g:vimax_last_address[l:mode_final] = a:address
 endfunction
 
+""
+" Sets global last command for mode and address on
+" g:vimax_last_command_dict[mode][address]
+"
+" @public
+" {mode} str from @setting(g:vimax_all_modes)
+" {address} str already formatted and ready for consumption
+" {command} str command
 function! vimax#set_last_command(mode, address, command) abort
   let l:mode_final = !(a:mode is v:null) ? a:mode : g:vimax_mode
   call vimax#set_last_address(l:mode_final, a:address)
   let g:vimax_last_command_dict[l:mode_final][a:address] = a:command
 endfunction
 
+""
+" Get global last command for mode and address
+"
+" @public
+" {mode} str from @setting(g:vimax_all_modes)
+" {address} str already formatted and ready for consumption
+"
+" TODO: return
 function! vimax#get_last_command(mode, address) abort
   let l:mode_final = !(a:mode is v:null) ? a:mode : g:vimax_mode
   let l:default = get(g:vimax_get_last_command_default, l:mode_final, "")
@@ -37,8 +53,11 @@ function! vimax#get_last_command(mode, address) abort
 endfunction
 
 ""
-" Calls mode specific function of name and passes args along. {opts} has mode, save_address, name
-" and repeat. [func_args] are passed on to get_address and the function itself
+" Calls mode specific function of name and passes args along. {opts} has mode,
+" save_address, name and repeat. [func_args] are passed on to get_address
+" and the function itself
+"
+" TODO: opts, other args
 function! vimax#call_mode_function(opts, ...) abort
   "type: (opts: Opts, *Any) -> Any
   let l:mode_final = !(a:opts.mode is v:null) ? a:opts.mode : g:vimax_mode
@@ -54,10 +73,11 @@ function! vimax#call_mode_function(opts, ...) abort
       call vimax#set_last_address(l:mode_final, l:address)
     endif
   endif
-  let l:should_py = get(g:, 'vimax_' . l:mode_final . '_py_enabled')
-  if l:should_py
-    let l:py_func = '_vimax_' . l:mode_final . '_' . a:opts.name
-    let l:result = call(l:py_func, l:func_args)
+  let l:should_call_remote = get(g:, 'vimax_' . l:mode_final .
+                                \ '_remote_enabled')
+  if l:should_call_remote
+    let l:remote_func = '_vimax_' . l:mode_final . '_' . a:opts.name
+    let l:result = call(l:remote_func, l:func_args)
     if a:opts.name !~# 'format_address'
       let l:result = v:null
     endif
@@ -70,7 +90,7 @@ function! vimax#call_mode_function(opts, ...) abort
   endif
   if has_key(a:opts, 'save_address')
      \ && !has_key(a:opts, 'needs_address')
-     \ && !l:should_py
+     \ && !l:should_call_remote
     call vimax#set_last_address(l:mode_final, l:result)
   endif
   return l:result

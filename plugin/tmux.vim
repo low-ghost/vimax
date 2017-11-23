@@ -14,5 +14,5 @@ let g:vimax_all_modes = get(g:, 'vimax_all_modes', []) + ['tmux']
 if has('nvim') && has('python3')
   ""
   " Neovim and python enabled for async execution
-  let g:vimax_tmux_py_enabled = get(g:, 'vimax_tmux_py_enable', 1)
+  let g:vimax_tmux_remote_enabled = get(g:, 'vimax_tmux_remote_enabled', 1)
 endif

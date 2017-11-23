@@ -98,11 +98,7 @@ function! vimax#tmux#run_in_dir(path, command, ...) abort
     \ . l:send_instructions
     \ . '\; display-message -p ' . "'#S:#I.#P'"
     \ ), "\n", '', '')
-  " Only go back to vim if a command is actually run, otherwise the assumption
-  " is the user wants to land in the new target to execute commands
-  if l:is_command
-    call system('tmux last-pane')
-  endif
+  call system('tmux last-pane')
   return l:address
 endfunction
 
