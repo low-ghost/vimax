@@ -1,6 +1,6 @@
+import shlex
 from subprocess import run, PIPE
-from shlex import quote
-from .tmux_cmd import TmuxCmd
+from vimax_tmux.tmux_cmd import TmuxCmd
 
 
 def unpack(len_expected, seq):
@@ -16,7 +16,7 @@ def send_keys(address, text):
 
 def send_text(address, text):
     # TODO: Vimax replace and escape
-    return send_keys(address, quote(text))
+    return send_keys(address, shlex.quote(text))
 
 
 def copy_mode(address):
@@ -38,24 +38,31 @@ def send_reset(address):
     return send_keys(address, 'q C-u')
 
 
-def go_to_address_additional(address, add=''):
-    # Save original vim address to file
-    run("touch ~/.vimaxenv && echo `tmux display-message -p '#S:#I.#P'`"
-        + ' > ~/.vimaxenv', shell=True)
+def split_address(address):
     first_split = str(address).split('.')
-    address_parts = (first_split if len(first_split) == 1
-                     else first_split[0].split(':') + [first_split[1]])[::-1]
+    return (first_split if len(first_split) == 1
+            else first_split[0].split(':') + [first_split[1]])[::-1]
+
+
+def save_vim_address(file_path):
+    """Save original vim address to file"""
+    run(("touch {} && echo `tmux display-message -p '#S:#I.#P'`"
+        + ' > {}').format(file_path, file_path), shell=True)
+
+
+def go_to_address_additional(address, add='', vimax_env_file_path='~/.vimaxenv'):
+    save_vim_address(vimax_env_file_path)
+    address_parts = split_address(address)
     len_address = len(address_parts)
-    pane_add = TmuxCmd('select-pane -t {}'.format(address)).chain(add)
+    cmd = TmuxCmd('select-pane -t {}'.format(address)).chain(add)
     # "Go to a different window
-    win_pane_add = (TmuxCmd('select-win -t {}'.format(address)) + pane_add
-                    if len_address > 1 else pane_add)
+    cmd = (TmuxCmd('select-win -t {}'.format(address)) + cmd
+           if len_address > 1 else cmd)
     # Go to different session
     client = address_parts[2] if len_address == 3 else None
-    client_win_pane_add = (win_pane_add
-                           .chain('switch-client -t {}'.format(client))
-                           if client else win_pane_add)
-    return client_win_pane_add
+    cmd = (cmd.chain('switch-client -t {}'.format(client))
+           if client else cmd)
+    return cmd
 
 
 def run_in_dir(path, command, orientation, size):
@@ -68,7 +75,3 @@ def run_in_dir(path, command, orientation, size):
                 .chain('display-message -p \'#S:#I.#P\''))
     address = full_cmd.run(stdout=PIPE).stdout.decode().replace('\n', '')
     return address
-
-
-def scroll_up(vim, address):
-    vim.eval('vimax#scroll_up("tmux", {})'.format(address))

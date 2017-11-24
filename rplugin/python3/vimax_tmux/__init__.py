@@ -1,8 +1,9 @@
 import neovim
 import re
-from .tmux_cmd import TmuxCmd
-from .util import (unpack, send_keys, send_reset, send_return, send_text,
-                   scroll, go_to_address_additional, run_in_dir)
+from vimax_tmux.tmux_cmd import TmuxCmd
+from vimax_tmux.util import (unpack, send_keys, send_reset, send_return,
+                             send_text, scroll, go_to_address_additional,
+                             run_in_dir)
 
 # TODO:
 # vimax#util#escape as python util
@@ -32,7 +33,7 @@ class Vimax(object):
         return str(address)
 
     @neovim.function('_vimax_tmux_format_address_from_fzf_item', sync=True)
-    def _vimax_tmux_format_form_fzf_item(self, args):
+    def _vimax_tmux_format_from_fzf_item(self, args):
         [item] = unpack(1, args)
         m = re.search(fzf_regex, item)
         formatted_add = '{}:{}.{}'.format(m.group(1), m.group(2), m.group(3))
