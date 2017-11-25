@@ -17,6 +17,11 @@ class TmuxCmd():
         self.__add__(TmuxCmd(text))
         return self
 
+    def prepend(self, text):
+        if (text):
+            self.text = '{}\; {}'.format(text, self.text)
+        return self
+
     def format(self, **to_format):
         self.text.format(**to_format)
         return self

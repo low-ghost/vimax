@@ -1,5 +1,6 @@
 import neovim
 import re
+from subprocess import PIPE
 from vimax_tmux.tmux_cmd import TmuxCmd
 from vimax_tmux.util import (unpack, send_keys, send_reset, send_return,
                              send_text, scroll, go_to_address_additional,
@@ -122,7 +123,8 @@ class Vimax(object):
         path, command = unpack(2, args)
         orientation = self.vim.vars['vimax_orientation']
         size = self.vim.vars['vimax_size']
-        address = run_in_dir(path, command, orientation, size)
+        cmd = run_in_dir(path, command, orientation, size)
+        address = cmd.run(stdout=PIPE).stdout.decode().replace('\n', '')
         # Call vimax#set_last_address for tmux to preserve async yet correctly
         # 'return' the new address
         self.vim.eval("vimax#set_last_address('tmux', '{}')".format(address))
