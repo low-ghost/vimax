@@ -48,11 +48,10 @@ endfunction
 "{arg} str
 "returns {int} buffer
 function! vimax#nvim#format_address_from_arg(arg) abort
-  return a:arg
+  return substitute(a:arg, '.*job \(.*\) buffer.*', '\1', '')
 endfunction
 
 function! vimax#nvim#format_address_from_fzf_item(item) abort
-  "TODO
   return string(a:item)
 endfunction
 
@@ -137,5 +136,17 @@ function! vimax#nvim#send_command(job_id, command, send_direct_text) abort
 endfunction
 
 function! vimax#nvim#list_source(...) abort
-  call input('list_source')
+  let l:source_list = []
+  let l:items = items(g:vimax_nvim_buffers['job'])
+  "Items are reversed, so count arg goes down
+  let l:count = len(l:items)
+  for [job, bufr] in l:items
+    call add(l:source_list, l:count . ': job ' . job . ' buffer ' . bufr . ':' . bufname(bufr))
+    let l:count -= 1
+  endfor
+  return l:source_list
+endfunction
+
+"TODO, if needed at all actually
+function! vimax#nvim#send_reset(...) abort
 endfunction
